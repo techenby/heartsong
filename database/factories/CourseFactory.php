@@ -9,7 +9,7 @@ class CourseFactory extends Factory
 {
     protected $model = Course::class;
 
-    public array $grades = [
+    private array $grades = [
         'Kindergarten',
         '1st Grade',
         '2nd Grade',
