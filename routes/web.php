@@ -1,5 +1,7 @@
 <?php
 
+use App\Livewire\CourseCreate;
+use App\Livewire\Courses;
 use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
@@ -30,4 +32,7 @@ Route::middleware(['auth'])->group(function () {
             ),
         )
         ->name('two-factor.show');
+
+    Route::get('courses', Courses::class)->name('courses');
+    Route::get('courses/create', CourseCreate::class)->name('courses.create');
 });

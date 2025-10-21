@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use App\Models\Course;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 it('returns course-{id} for a model without prefix/suffix', function () {
     $course = Course::factory()->make(['id' => 1]);
