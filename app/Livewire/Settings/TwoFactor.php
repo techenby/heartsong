@@ -66,23 +66,6 @@ class TwoFactor extends Component
     }
 
     /**
-     * Load the two-factor authentication setup data for the user.
-     */
-    private function loadSetupData(): void
-    {
-        $user = auth()->user();
-
-        try {
-            $this->qrCodeSvg = $user?->twoFactorQrCodeSvg();
-            $this->manualSetupKey = decrypt($user->two_factor_secret);
-        } catch (Exception) {
-            $this->addError('setupData', 'Failed to fetch setup data.');
-
-            $this->reset('qrCodeSvg', 'manualSetupKey');
-        }
-    }
-
-    /**
      * Show the two-factor verification step if necessary.
      */
     public function showVerificationIfNecessary(): void
@@ -178,5 +161,22 @@ class TwoFactor extends Component
             'description' => __('To finish enabling two-factor authentication, scan the QR code or enter the setup key in your authenticator app.'),
             'buttonText' => __('Continue'),
         ];
+    }
+
+    /**
+     * Load the two-factor authentication setup data for the user.
+     */
+    private function loadSetupData(): void
+    {
+        $user = auth()->user();
+
+        try {
+            $this->qrCodeSvg = $user?->twoFactorQrCodeSvg();
+            $this->manualSetupKey = decrypt($user->two_factor_secret);
+        } catch (Exception) {
+            $this->addError('setupData', 'Failed to fetch setup data.');
+
+            $this->reset('qrCodeSvg', 'manualSetupKey');
+        }
     }
 }

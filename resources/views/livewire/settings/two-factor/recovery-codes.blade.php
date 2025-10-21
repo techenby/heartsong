@@ -60,7 +60,7 @@
         >
             <div class="mt-3 space-y-3">
                 @error('recoveryCodes')
-                    <flux:callout variant="danger" icon="x-circle" heading="{{$message}}"/>
+                    <flux:callout variant="danger" icon="x-circle" heading="{{ $message }}"/>
                 @enderror
 
                 @if (filled($recoveryCodes))
@@ -69,7 +69,7 @@
                         role="list"
                         aria-label="Recovery codes"
                     >
-                        @foreach($recoveryCodes as $code)
+                        @foreach ($recoveryCodes as $code)
                             <div
                                 role="listitem"
                                 class="select-text"
