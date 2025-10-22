@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Enum\Color;
+use App\Enum\Grade;
 use App\Models\Course;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -10,22 +11,10 @@ class CourseFactory extends Factory
 {
     protected $model = Course::class;
 
-    private array $grades = [
-        'Kindergarten',
-        '1st Grade',
-        '2nd Grade',
-        '3rd Grade',
-        '4th Grade',
-        '5th Grade',
-        '6th Grade',
-        '7th Grade',
-        '8th Grade',
-    ];
-
     public function definition(): array
     {
         return [
-            'grade' => fake()->randomElement($this->grades),
+            'grade' => fake()->randomElement(Grade::class),
             'color' => fake()->randomElement(Color::class),
             'homeroom' => 'A123',
         ];

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enum\Color;
 use App\Enum\Day;
+use App\Enum\Grade;
 use App\Enum\Period;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -25,6 +26,7 @@ class Course extends Model
     protected function casts(): array
     {
         return [
+            'grade' => Grade::class,
             'color' => Color::class,
         ];
     }
@@ -32,9 +34,7 @@ class Course extends Model
     protected function formatted(): Attribute
     {
         return Attribute::get(function (): string {
-            $grade = $this->grade === 'Kindergarten' ? 'K' : str($this->grade)->before(' ');
-
-            return "{$grade} - {$this->homeroom}";
+            return "{$this->grade->short()} - {$this->homeroom}";
         });
     }
 
