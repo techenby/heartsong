@@ -24,7 +24,7 @@ if (! function_exists('keyFor')) {
         // todo figure out if there's duplicate class/class names?
         $itemName = Str::of(class_basename($item))->kebab()->toString();
         $segments[] = $itemName;
-        $segments[] = (string) enum_exists($item) ? $item->name : $item->getKey();
+        $segments[] = (string) (is_string($item) && enum_exists($item)) ? $item->name : $item->getKey();
 
         if (! empty($suffix)) {
             $segments[] = trim($suffix, '-');

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enum\Day;
 use App\Enum\Period;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -22,6 +23,7 @@ class CourseMeeting extends Model
     protected function casts(): array
     {
         return [
+            'day' => Day::class,
             'period' => Period::class,
         ];
     }

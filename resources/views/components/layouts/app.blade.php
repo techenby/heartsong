@@ -120,6 +120,7 @@
     {{ $slot }}
 </flux:main>
 
+<flux:toast />
 @fluxScripts
 </body>
 </html>

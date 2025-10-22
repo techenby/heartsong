@@ -1,5 +1,7 @@
 <div>
-    <flux:heading size="xl" level="1">Courses</flux:heading>
+    <flux:heading size="xl" level="1">Classes</flux:heading>
+
+
 
     <flux:table :paginate="$this->courses">
         <flux:table.columns>
