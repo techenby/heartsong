@@ -13,7 +13,7 @@ enum Grade: string
     case SIXTH = '6th Grade';
     case SEVENTH = '7th Grade';
     case EIGHTH = '8th Grade';
-    
+
     public function short(): string
     {
         return $this === self::KINDER ? 'K' : str($this->value)->before(' ');
