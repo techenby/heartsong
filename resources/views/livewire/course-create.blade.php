@@ -1,10 +1,14 @@
-@php use App\Enum\Color;use App\Enum\Day;use App\Enum\Period; use Illuminate\Support\Carbon; @endphp
+@php use App\Enum\Color;use App\Enum\Day;use App\Enum\Grade;use App\Enum\Period; use Illuminate\Support\Carbon; @endphp
 <div class="space-y-6">
     <flux:heading size="xl" level="1">Create Class</flux:heading>
 
     <form wire:submit="save" class="space-y-4">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <flux:input wire:model="grade" name="grade" label="Grade" placeholder="8th Grade"/>
+            <flux:select wire:model="grade" name="grade" label="Grade" placeholder="Grade">
+                @foreach (Grade::cases() as $grade)
+                    <flux:select.option :value="$grade->name">{{ $grade->value }}</flux:select.option>
+                @endforeach
+            </flux:select>
 
             <flux:radio.group wire:model="color" label="Color" variant="pills">
                 @foreach (Color::cases() as $color)

@@ -12,7 +12,7 @@ class Courses extends Component
 {
     use WithSorting;
 
-    public string $sortBy = 'name';
+    public string $sortBy = 'grade';
     public string $sortDirection = 'desc';
 
     #[Computed]
