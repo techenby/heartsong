@@ -12,7 +12,7 @@ return new class extends Migration
         Schema::create('course_meetings', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(Course::class)->constrained('courses');
-            $table->tinyInteger('day');
+            $table->string('day');
             $table->string('period');
             $table->timestamps();
         });

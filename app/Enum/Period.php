@@ -2,6 +2,8 @@
 
 namespace App\Enum;
 
+use Illuminate\Support\Carbon;
+
 enum Period: string
 {
     case FIRST = '1st Period';
@@ -23,5 +25,13 @@ enum Period: string
             self::SIXTH => ['start' => '13:15:00', 'end' => '15:15:00'],
             self::SEVENTH => ['start' => '15:15:00', 'end' => '16:15:00'],
         };
+    }
+
+    public function formattedTimes(): string
+    {
+        $start = Carbon::parse($this->times()['start'], 'America/Chicago')->format('g:i');
+        $end = Carbon::parse($this->times()['end'], 'America/Chicago')->format('g:i');
+
+        return "$start-$end";
     }
 }

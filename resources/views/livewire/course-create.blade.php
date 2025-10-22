@@ -56,7 +56,7 @@
                 <flux:card class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <flux:select wire:model="meetings.{{ $index }}.day" name="day" placeholder="Day of Week">
                         @foreach (Day::cases() as $day)
-                            <flux:select.option :value="$day->value">{{ str($day->name)->title() }}</flux:select.option>
+                            <flux:select.option :value="$day->name">{{ $day->value }}</flux:select.option>
                         @endforeach
                     </flux:select>
 

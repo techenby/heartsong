@@ -31,6 +31,6 @@ class CourseMeeting extends Model
 
     protected function formatted(): Attribute
     {
-        return Attribute::get(fn (): string => $this->period->value . ' ' . $this->day->label());
+        return Attribute::get(fn (): string => $this->period->value . ' ' . $this->day->value);
     }
 }

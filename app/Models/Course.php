@@ -32,15 +32,24 @@ class Course extends Model
 
             // Same period, multiple days => "<period>, Monday & Thursday"
             if ($uniquePeriods->count() === 1 && $uniqueDays->count() > 1) {
-                return $uniquePeriods->first()->value . ', ' . $uniqueDays->map->label()->join(', ', ' & ');
+                return $uniquePeriods->first()->value . ', ' . $uniqueDays->map->value->join(', ', ' & ');
             }
 
             // Same day, multiple periods => "Monday, 1st period & 2nd period"
             if ($uniqueDays->count() === 1 && $uniquePeriods->count() > 1) {
-                return $uniqueDays->first()->label() . ', ' . $uniquePeriods->map->value->join(', ', ' & ');
+                return $uniqueDays->first()->value . ', ' . $uniquePeriods->map->value->join(', ', ' & ');
             }
 
             return $this->meetings->map->formatted->join(', ');
+        });
+    }
+
+    protected function formatted(): Attribute
+    {
+        return Attribute::get(function (): string {
+            $grade = $this->name === 'Kindergarten' ? 'K' : str($this->name)->before(' ');
+
+            return "$grade - $this->homeroom";
         });
     }
 }
