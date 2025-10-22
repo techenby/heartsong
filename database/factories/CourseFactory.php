@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enum\Color;
 use App\Models\Course;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -25,7 +26,7 @@ class CourseFactory extends Factory
     {
         return [
             'name' => fake()->randomElement($this->grades),
-            'color' => 'white',
+            'color' => fake()->randomElement(Color::class),
             'homeroom' => 'A123',
         ];
     }

@@ -27,7 +27,7 @@
                         @endphp
 
                         @if ($meeting)
-                        <flux:table.cell variant="strong" align="center" :key="keyFor($meeting)" class="bg-{{ $meeting->course->color }}-400 border-l border-gray-100">
+                        <flux:table.cell variant="strong" align="center" :key="keyFor($meeting)" class="{{ $meeting->course->color->background() }} {{ $meeting->course->color->text() }} border-l border-gray-100">
                             {{ $meeting->course->formatted ?? '' }}
                         </flux:table.cell>
                         @else

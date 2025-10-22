@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Enum\Color;
 use App\Enum\Day;
 use App\Enum\Period;
 use App\Models\Course;
@@ -41,7 +42,7 @@ class CourseCreate extends Component
     {
         $course = Course::create([
             'name' => $this->name,
-            'color' => $this->color,
+            'color' => Color::{$this->color},
             'homeroom' => $this->homeroom,
         ]);
 

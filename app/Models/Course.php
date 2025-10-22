@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enum\Color;
 use App\Enum\Day;
 use App\Enum\Period;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -20,6 +21,13 @@ class Course extends Model
         return $this->hasMany(CourseMeeting::class);
     }
 
+    /** @return array<string, string> */
+    protected function casts(): array
+    {
+        return [
+            'color' => Color::class,
+        ];
+    }
     protected function meets(): Attribute
     {
         return Attribute::get(function (): string {

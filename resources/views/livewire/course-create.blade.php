@@ -1,4 +1,4 @@
-@php use App\Enum\Day;use App\Enum\Period; use Illuminate\Support\Carbon; @endphp
+@php use App\Enum\Color;use App\Enum\Day;use App\Enum\Period; use Illuminate\Support\Carbon; @endphp
 <div class="space-y-6">
     <flux:heading size="xl" level="1">Create Class</flux:heading>
 
@@ -7,42 +7,12 @@
             <flux:input wire:model="name" name="name" label="Name" placeholder="8th Grade"/>
 
             <flux:radio.group wire:model="color" label="Color" variant="pills">
-                <flux:radio value="red">
-                    <span class="bg-red-400 border border-gray-100 rounded-full size-4"></span>
-                    Red
-                </flux:radio>
-                <flux:radio value="orange">
-                    <span class="bg-orange-400 border border-gray-100 rounded-full size-4"></span>
-                    Orange
-                </flux:radio>
-                <flux:radio value="yellow">
-                    <span class="bg-yellow-400 border border-gray-100 rounded-full size-4"></span>
-                    Yellow
-                </flux:radio>
-                <flux:radio value="green">
-                    <span class="bg-lime-400 border border-gray-100 rounded-full size-4"></span>
-                    Green
-                </flux:radio>
-                <flux:radio value="blue">
-                    <span class="bg-blue-400 border border-gray-100 rounded-full size-4"></span>
-                    Blue
-                </flux:radio>
-                <flux:radio value="purple">
-                    <span class="bg-purple-400 border border-gray-100 rounded-full size-4"></span>
-                    Purple
-                </flux:radio>
-                <flux:radio value="white">
-                    <span class="bg-white border border-gray-100 rounded-full size-4"></span>
-                    White
-                </flux:radio>
-                <flux:radio value="black">
-                    <span class="bg-black border border-gray-100 rounded-full size-4"></span>
-                    Black
-                </flux:radio>
-                <flux:radio value="gray">
-                    <span class="bg-gray-400 border border-gray-100 rounded-full size-4"></span>
-                    Gray
-                </flux:radio>
+                @foreach (Color::cases() as $color)
+                    <flux:radio :value="$color->name">
+                        <span class="{{ $color->background() }} border border-gray-100 rounded-full size-4"></span>
+                        {{ $color->value }}
+                    </flux:radio>
+                @endforeach
             </flux:radio.group>
 
             <flux:input wire:model="homeroom" name="homeroom" label="Homeroom" placeholder="A202"/>
