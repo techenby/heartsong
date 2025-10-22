@@ -4,9 +4,6 @@ namespace App;
 
 trait WithSorting
 {
-    public string $sortBy = 'name';
-    public string $sortDirection = 'desc';
-
     public function sort($column): void
     {
         if ($this->sortBy === $column) {

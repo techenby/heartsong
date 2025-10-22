@@ -14,6 +14,9 @@ class Courses extends Component
     use WithPagination;
     use WithSorting;
 
+    public string $sortBy = 'name';
+    public string $sortDirection = 'desc';
+
     #[Computed]
     public function courses(): LengthAwarePaginator
     {
