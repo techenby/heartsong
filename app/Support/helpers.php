@@ -7,14 +7,14 @@ use Illuminate\Support\Str;
 
 if (! function_exists('keyFor')) {
     /**
-     * Build a consistent key for a given Eloquent model.
+     * Build a consistent key for a given object.
      *
-     * Format: {prefix}-{model name}-{model id}-{suffix}
+     * Format: {prefix}-{class name}-{class id}-{suffix}
      *
-     * - Model name is the base class name in kebab-case (e.g., App\Models\Course => "course").
+     * - Object name is the base class name in kebab-case (e.g., App\Models\Course => "course", App\Enums\Period => "period").
      * - Prefix and suffix are optional and omitted if null/empty.
      */
-    function keyFor(Model $model, ?string $prefix = null, ?string $suffix = null): string
+    function keyFor($item, ?string $prefix = null, ?string $suffix = null): string
     {
         $segments = [];
 
@@ -22,9 +22,10 @@ if (! function_exists('keyFor')) {
             $segments[] = trim($prefix, '-');
         }
 
-        $modelName = Str::of(class_basename($model))->kebab()->toString();
-        $segments[] = $modelName;
-        $segments[] = (string) $model->getKey();
+        // todo figure out if there's duplicate class/class names?
+        $itemName = Str::of(class_basename($item))->kebab()->toString();
+        $segments[] = $itemName;
+        $segments[] = (string) enum_exists($item) ? $item->name : $item->getKey();
 
         if (! empty($suffix)) {
             $segments[] = trim($suffix, '-');
