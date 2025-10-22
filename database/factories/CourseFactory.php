@@ -25,8 +25,8 @@ class CourseFactory extends Factory
     {
         return [
             'name' => fake()->randomElement($this->grades),
-            'created_at' => now(),
-            'updated_at' => now(),
+            'color' => 'white',
+            'homeroom' => 'A123',
         ];
     }
 }

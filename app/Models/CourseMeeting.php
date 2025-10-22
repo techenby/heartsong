@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enum\Day;
 use App\Enum\Period;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -26,5 +27,10 @@ class CourseMeeting extends Model
             'day' => Day::class,
             'period' => Period::class,
         ];
+    }
+
+    protected function formatted(): Attribute
+    {
+        return Attribute::get(fn (): string => $this->period->value . ' ' . $this->day->label());
     }
 }
