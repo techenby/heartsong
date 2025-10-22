@@ -3,13 +3,10 @@
 namespace App\Livewire;
 
 use App\Models\Course;
-use App\Models\CourseMeeting;
 use App\WithSorting;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
-use Livewire\WithPagination;
 
 class Courses extends Component
 {
@@ -23,7 +20,7 @@ class Courses extends Component
     {
         return Course::query()
             ->with('meetings')
-            ->tap(fn($query) => $this->sortBy ? $query->orderBy($this->sortBy, $this->sortDirection) : $query)
+            ->tap(fn ($query) => $this->sortBy ? $query->orderBy($this->sortBy, $this->sortDirection) : $query)
             ->get();
     }
 

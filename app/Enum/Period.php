@@ -32,6 +32,6 @@ enum Period: string
         $start = Carbon::parse($this->times()['start'], 'America/Chicago')->format('g:i');
         $end = Carbon::parse($this->times()['end'], 'America/Chicago')->format('g:i');
 
-        return "$start-$end";
+        return "{$start}-{$end}";
     }
 }

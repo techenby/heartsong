@@ -11,10 +11,14 @@ use Livewire\Component;
 
 class CourseCreate extends Component
 {
-    public string $name;
+    public string $grade;
+
     public Period $period;
+
     public string $color;
+
     public string $homeroom;
+
     public array $meetings = [['day' => '', 'period' => '']];
 
     public function add(): void
@@ -31,6 +35,7 @@ class CourseCreate extends Component
     {
         if (count($this->meetings) === 1) {
             Flux::toast('Courses must have at least one time.');
+
             return;
         }
 
@@ -41,7 +46,7 @@ class CourseCreate extends Component
     public function save(): void
     {
         $course = Course::create([
-            'name' => $this->name,
+            'grade' => $this->grade,
             'color' => Color::{$this->color},
             'homeroom' => $this->homeroom,
         ]);

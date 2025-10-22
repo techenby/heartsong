@@ -41,7 +41,7 @@
 
     <flux:table>
         <flux:table.columns>
-            <flux:table.column>Name</flux:table.column>
+            <flux:table.column>Grade</flux:table.column>
             <flux:table.column>Color</flux:table.column>
             <flux:table.column>Homeroom</flux:table.column>
             <flux:table.column>Meets</flux:table.column>
@@ -50,7 +50,7 @@
         <flux:table.rows>
             @forelse ($this->courses as $course)
                 <flux:table.row :key="keyFor($course)">
-                    <flux:table.cell>{{ $course->name }}</flux:table.cell>
+                    <flux:table.cell>{{ $course->grade }}</flux:table.cell>
                     <flux:table.cell class="flex gap-2 items-center">
                         <span class="bg-{{ $course->color }}-400 border border-gray-100 rounded-full w-4 h-4"></span>
                         <span>{{ $course->color }}</span>

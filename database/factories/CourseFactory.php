@@ -25,7 +25,7 @@ class CourseFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->randomElement($this->grades),
+            'grade' => fake()->randomElement($this->grades),
             'color' => fake()->randomElement(Color::class),
             'homeroom' => 'A123',
         ];

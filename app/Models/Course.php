@@ -28,6 +28,16 @@ class Course extends Model
             'color' => Color::class,
         ];
     }
+
+    protected function formatted(): Attribute
+    {
+        return Attribute::get(function (): string {
+            $grade = $this->grade === 'Kindergarten' ? 'K' : str($this->grade)->before(' ');
+
+            return "{$grade} - {$this->homeroom}";
+        });
+    }
+
     protected function meets(): Attribute
     {
         return Attribute::get(function (): string {
@@ -49,15 +59,6 @@ class Course extends Model
             }
 
             return $this->meetings->map->formatted->join(', ');
-        });
-    }
-
-    protected function formatted(): Attribute
-    {
-        return Attribute::get(function (): string {
-            $grade = $this->name === 'Kindergarten' ? 'K' : str($this->name)->before(' ');
-
-            return "$grade - $this->homeroom";
         });
     }
 }

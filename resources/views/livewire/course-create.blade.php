@@ -4,7 +4,7 @@
 
     <form wire:submit="save" class="space-y-4">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <flux:input wire:model="name" name="name" label="Name" placeholder="8th Grade"/>
+            <flux:input wire:model="grade" name="grade" label="Grade" placeholder="8th Grade"/>
 
             <flux:radio.group wire:model="color" label="Color" variant="pills">
                 @foreach (Color::cases() as $color)
