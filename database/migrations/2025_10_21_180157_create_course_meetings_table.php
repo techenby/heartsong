@@ -13,8 +13,7 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(Course::class)->constrained('courses');
             $table->tinyInteger('day');
-            $table->time('start');
-            $table->time('end');
+            $table->string('period');
             $table->timestamps();
         });
     }

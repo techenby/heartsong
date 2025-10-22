@@ -8,7 +8,7 @@
         </flux:table.columns>
 
         <flux:table.rows>
-            @forelse($this->courses as $course)
+            @forelse ($this->courses as $course)
             <flux:table.row :key="keyFor($course)">
                 <flux:table.cell>{{ $course->name }}</flux:table.cell>
                 <flux:table.cell>{{ $course->meets }}</flux:table.cell>

@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Enum\Period;
 
 it('gets correct times for each period', function (Period $enum, array $result) {
-   expect($enum->times())->toBe($result);
+    expect($enum->times())->toBe($result);
 })->with([
     [Period::FIRST, ['start' => '08:30:00', 'end' => '09:30:00']],
     [Period::SECOND, ['start' => '09:35:00', 'end' => '10:35:00']],
