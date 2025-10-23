@@ -1,8 +1,8 @@
 <?php
 
-use App\Livewire\Pages\CourseCreate;
-use App\Livewire\Pages\Courses;
-use App\Livewire\Pages\CourseShow;
+use App\Livewire\Pages\Courses\Create as CourseCreate;
+use App\Livewire\Pages\Courses\Index as Courses;
+use App\Livewire\Pages\Courses\Show as CourseShow;
 use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;

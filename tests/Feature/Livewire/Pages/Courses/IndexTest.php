@@ -4,44 +4,42 @@ use App\Enum\Color;
 use App\Enum\Day;
 use App\Enum\Grade;
 use App\Enum\Period;
-use App\Livewire\Pages\Courses;
+use App\Livewire\Pages\Courses\Index;
 use App\Models\Course;
 use App\Models\CourseMeeting;
 use App\Models\User;
 use Livewire\Livewire;
 
 beforeEach(function () {
-   $this->courseA = Course::factory()
-       ->has(
-           CourseMeeting::factory()
-               ->count(2)
-               ->sequence(
-                   ['day' => Day::MONDAY, 'period' => Period::FIRST],
-                   ['day' => Day::THURSDAY, 'period' => Period::FIRST],
-               )
-       , 'meetings')
-       ->grade(Grade::FIRST)
-       ->color(Color::RED)
-       ->create(['homeroom' => 123]);
+    $this->courseA = Course::factory()
+        ->has(
+            CourseMeeting::factory()
+                ->count(2)
+                ->sequence(
+                    ['day' => Day::MONDAY, 'period' => Period::FIRST],
+                    ['day' => Day::THURSDAY, 'period' => Period::FIRST],
+                ), 'meetings')
+        ->grade(Grade::FIRST)
+        ->color(Color::RED)
+        ->create(['homeroom' => 123]);
 
-   $this->courseB = Course::factory()
-       ->has(
-           CourseMeeting::factory()
-               ->count(2)
-               ->sequence(
-                   ['day' => Day::TUESDAY, 'period' => Period::SECOND],
-                   ['day' => Day::TUESDAY, 'period' => Period::THIRD],
-               )
-       , 'meetings')
-       ->grade(Grade::SECOND)
-       ->color(Color::BLACK)
-       ->create(['homeroom' => 456]);
+    $this->courseB = Course::factory()
+        ->has(
+            CourseMeeting::factory()
+                ->count(2)
+                ->sequence(
+                    ['day' => Day::TUESDAY, 'period' => Period::SECOND],
+                    ['day' => Day::TUESDAY, 'period' => Period::THIRD],
+                ), 'meetings')
+        ->grade(Grade::SECOND)
+        ->color(Color::BLACK)
+        ->create(['homeroom' => 456]);
 });
 
 test('page renders successfully', function () {
     $this->actingAs(User::factory()->create())
         ->get(route('courses'))
-        ->assertSeeLivewire(Courses::class)
+        ->assertSeeLivewire(Index::class)
         ->assertStatus(200)
         // calendar view
         ->assertSeeInOrder(['bg-red-400 !text-black', '1st - 123'])
@@ -52,7 +50,7 @@ test('page renders successfully', function () {
 });
 
 test('component renders successfully', function () {
-    Livewire::test(Courses::class)
+    Livewire::test(Index::class)
         ->assertStatus(200)
         // calendar view
         ->assertSeeInOrder(['bg-red-400 !text-black', '1st - 123'])

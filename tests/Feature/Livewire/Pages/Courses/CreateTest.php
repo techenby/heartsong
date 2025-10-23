@@ -4,7 +4,7 @@ use App\Enum\Color;
 use App\Enum\Day;
 use App\Enum\Grade;
 use App\Enum\Period;
-use App\Livewire\Pages\CourseCreate;
+use App\Livewire\Pages\Courses\Create;
 use App\Models\Course;
 use App\Models\User;
 use Livewire\Livewire;
@@ -12,17 +12,17 @@ use Livewire\Livewire;
 test('page renders successfully', function () {
     $this->actingAs(User::factory()->create())
         ->get(route('courses.create'))
-        ->assertSeeLivewire(CourseCreate::class)
+        ->assertSeeLivewire(Create::class)
         ->assertStatus(200);
 });
 
 test('component renders successfully', function () {
-    Livewire::test(CourseCreate::class)
+    Livewire::test(Create::class)
         ->assertStatus(200);
 });
 
 test('can create course', function () {
-    Livewire::test(CourseCreate::class)
+    Livewire::test(Create::class)
         ->set('grade', Grade::FIRST->name)
         ->set('color', Color::RED->name)
         ->set('homeroom', '123')
@@ -42,29 +42,29 @@ test('can create course', function () {
 });
 
 test('can add meeting', function () {
-    Livewire::test(CourseCreate::class)
+    Livewire::test(Create::class)
         ->call('add')
         ->assertSeeHtmlInOrder([
             'key="meeting-0"',
-            'key="meeting-1"'
+            'key="meeting-1"',
         ]);
 });
 
 test('can duplicate meeting', function () {
-    Livewire::test(CourseCreate::class)
+    Livewire::test(Create::class)
         ->set('meetings.0.day', Day::MONDAY->name)
         ->set('meetings.0.period', Period::FIRST->name)
         ->call('duplicate', 0)
         ->assertSeeHtmlInOrder([
             'key="meeting-0"',
-            'key="meeting-1"'
+            'key="meeting-1"',
         ])
         ->assertSet('meetings.1.day', Day::MONDAY->name)
         ->assertSet('meetings.1.period', Period::FIRST->name);
 });
 
 test('can remove meeting', function () {
-    Livewire::test(CourseCreate::class)
+    Livewire::test(Create::class)
         ->set('meetings.0.day', Day::MONDAY->name)
         ->set('meetings.0.period', Period::FIRST->name)
         ->set('meetings.1.day', Day::TUESDAY->name)
@@ -79,7 +79,7 @@ test('can remove meeting', function () {
 })->note('When a meeting is removed, the index is removed and values reset');
 
 test('cannot delete last meeting', function () {
-    Livewire::test(CourseCreate::class)
+    Livewire::test(Create::class)
         ->set('meetings.0.day', Day::MONDAY->name)
         ->set('meetings.0.period', Period::FIRST->name)
         ->call('remove', 0)

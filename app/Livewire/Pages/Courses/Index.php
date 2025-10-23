@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Pages;
+namespace App\Livewire\Pages\Courses;
 
 use App\Models\Course;
 use App\WithSorting;
@@ -9,7 +9,7 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 
-class Courses extends Component
+class Index extends Component
 {
     use WithSorting;
 
@@ -21,6 +21,11 @@ class Courses extends Component
 
     #[Url]
     public string $tab = 'calendar';
+
+    public function render()
+    {
+        return view('livewire.pages.courses.index');
+    }
 
     #[Computed]
     public function courses(): Collection

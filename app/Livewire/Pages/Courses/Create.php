@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Pages;
+namespace App\Livewire\Pages\Courses;
 
 use App\Enum\Color;
 use App\Enum\Day;
@@ -10,7 +10,7 @@ use App\Models\Course;
 use Flux\Flux;
 use Livewire\Component;
 
-class CourseCreate extends Component
+class Create extends Component
 {
     public string $grade;
 
