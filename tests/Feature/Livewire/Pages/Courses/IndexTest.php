@@ -42,8 +42,8 @@ test('page renders successfully', function () {
         ->assertSeeLivewire(Index::class)
         ->assertStatus(200)
         // calendar view
-        ->assertSeeInOrder(['bg-red-400 !text-black', '1st - 123'])
-        ->assertSeeInOrder(['bg-black !text-white', '2nd - 456'])
+        ->assertSeeInOrder(['bg-black', '!text-white', '2nd - 456'])
+        ->assertSeeInOrder(['bg-red-400', '!text-black', '1st - 123'])
         // table view
         ->assertSeeInOrder(['1st Grade', '123', '1st Period, Monday & Thursday'])
         ->assertSeeInOrder(['2nd Grade', '456', 'Tuesday, 2nd Period & 3rd Period']);
@@ -53,8 +53,8 @@ test('component renders successfully', function () {
     Livewire::test(Index::class)
         ->assertStatus(200)
         // calendar view
-        ->assertSeeInOrder(['bg-red-400 !text-black', '1st - 123'])
-        ->assertSeeInOrder(['bg-black !text-white', '2nd - 456'])
+        ->assertSeeInOrder(['bg-red-400', '!text-black', '1st - 123'])
+        ->assertSeeInOrder(['bg-black', '!text-white', '2nd - 456'])
         // table view
         ->assertSeeInOrder(['1st Grade', '123', '1st Period, Monday & Thursday'])
         ->assertSeeInOrder(['2nd Grade', '456', 'Tuesday, 2nd Period & 3rd Period']);
