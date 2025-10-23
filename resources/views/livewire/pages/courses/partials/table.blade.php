@@ -19,12 +19,12 @@
                 <flux:table.cell>{{ $course->students_count }}</flux:table.cell>
                 <flux:table.cell>
                     <flux:dropdown>
-                        <flux:button variant="ghost" size="sm" icon="ellipsis-horizontal" inset="top bottom"></flux:button>
+                        <flux:button variant="ghost" size="sm" icon="ellipsis-horizontal" inset="top bottom" :id="keyFor($course, suffix: 'actions')"></flux:button>
 
                         <flux:menu>
-                            <flux:menu.item :href="route('courses.show', $course)" icon="eye">View</flux:menu.item>
-                            <flux:menu.item :href="route('courses.edit', $course)" icon="pencil">Edit</flux:menu.item>
-                            <flux:menu.item wire:click="delete({{ $course->id }})" icon="trash">Delete</flux:menu.item>
+                            <flux:menu.item :href="route('courses.show', $course)" :id="keyFor($course, suffix: 'show')" icon="eye">View</flux:menu.item>
+                            <flux:menu.item :href="route('courses.edit', $course)" :id="keyFor($course, suffix: 'edit')" icon="pencil">Edit</flux:menu.item>
+                            <flux:menu.item wire:click="delete({{ $course->id }})" :id="keyFor($course, suffix: 'delete')" icon="trash">Delete</flux:menu.item>
                         </flux:menu>
                     </flux:dropdown>
                 </flux:table.cell>

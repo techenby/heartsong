@@ -72,3 +72,14 @@ test('can delete course', function () {
         ->and($meetingA->fresh())->toBeNull()
         ->and($meetingB->fresh())->toBeNull();
 });
+
+describe('browser tests', function () {
+    test('can delete course', function () {
+        $this->actingAs(User::factory()->create());
+
+        visit(route('courses', ['tab' => 'list']))
+            ->click("#course-{$this->courseA->id}-actions")
+            ->click("#course-{$this->courseA->id}-delete")
+            ->assertDontSee('1st Grade');
+    });
+})->group('browser');
