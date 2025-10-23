@@ -12,8 +12,7 @@ class ImportRoster implements ShouldQueue
 {
     use Queueable;
 
-    public function __construct(public Course $course, public string $file)
-    {}
+    public function __construct(public Course $course, public string $file) {}
 
     public function handle(): void
     {
@@ -22,7 +21,7 @@ class ImportRoster implements ShouldQueue
 
         $this->course->students()->delete();
 
-        $students = $rows->map(function(array $rowProperties) {
+        $students = $rows->map(function (array $rowProperties) {
             [$firstName, $lastName] = explode(',', $rowProperties['Name']);
 
             return [
