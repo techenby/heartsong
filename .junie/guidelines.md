@@ -421,7 +421,7 @@ $delete = fn(Product $product) => $product->delete();
 - Tests live in the `tests/Feature` and `tests/Unit` directories.
 - Pest tests look and behave like this:
 <code-snippet name="Basic Pest Test Example" lang="php">
-it('is true', function () {
+test('is true', function () {
     expect(true)->toBeTrue();
 });
 </code-snippet>
@@ -436,7 +436,7 @@ it('is true', function () {
 ### Pest Assertions
 - When asserting status codes on a response, use the specific method like `assertForbidden` and `assertNotFound` instead of using `assertStatus(403)` or similar, e.g.:
 <code-snippet name="Pest Example Asserting postJson Response" lang="php">
-it('returns all', function () {
+test('returns all', function () {
     $response = $this->postJson('/api/docs', []);
 
     $response->assertSuccessful();
@@ -452,7 +452,7 @@ it('returns all', function () {
 - Use datasets in Pest to simplify tests which have a lot of duplicated data. This is often the case when testing validation rules, so consider going with this solution when writing tests for validation rules.
 
 <code-snippet name="Pest Dataset Example" lang="php">
-it('has emails', function (string $email) {
+test('has emails', function (string $email) {
     expect($email)->not->toBeEmpty();
 })->with([
     'james' => 'james@laravel.com',
@@ -481,7 +481,7 @@ it('has emails', function (string $email) {
 ### Example Tests
 
 <code-snippet name="Pest Browser Test Example" lang="php">
-it('may reset the password', function () {
+test('may reset the password', function () {
     Notification::fake();
 
     $this->actingAs(User::factory()->create());

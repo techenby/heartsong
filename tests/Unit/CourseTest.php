@@ -11,7 +11,7 @@ use Tests\TestCase;
 
 uses(TestCase::class, RefreshDatabase::class);
 
-it('formats meetings with same period across multiple days', function (): void {
+test('formats meetings with same period across multiple days', function (): void {
     $course = Course::factory()->create();
 
     CourseMeeting::factory()->create([
@@ -29,7 +29,7 @@ it('formats meetings with same period across multiple days', function (): void {
     expect($course->fresh()->meets)->toBe('1st Period, Monday & Thursday');
 });
 
-it('formats meetings with same day across multiple periods', function (): void {
+test('formats meetings with same day across multiple periods', function (): void {
     $course = Course::factory()->create();
 
     CourseMeeting::factory()->create([
@@ -47,7 +47,7 @@ it('formats meetings with same day across multiple periods', function (): void {
     expect($course->fresh()->meets)->toBe('Monday, 1st Period & 2nd Period');
 });
 
-it('formats mixed meetings as period then day list', function (): void {
+test('formats mixed meetings as period then day list', function (): void {
     $course = Course::factory()->create();
 
     CourseMeeting::factory()->create([
