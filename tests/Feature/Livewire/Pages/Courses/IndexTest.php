@@ -59,3 +59,16 @@ test('component renders successfully', function () {
         ->assertSeeInOrder(['1st Grade', '123', '1st Period, Monday & Thursday'])
         ->assertSeeInOrder(['2nd Grade', '456', 'Tuesday, 2nd Period & 3rd Period']);
 });
+
+test('can delete course', function () {
+    [$meetingA, $meetingB] = $this->courseA->meetings;
+
+    Livewire::test(Index::class)
+        ->call('delete', $this->courseA->id)
+        ->assertDontSee('1st Grade')
+        ->assertSee('2nd Grade');
+
+    expect($this->courseA->fresh())->toBeNull()
+        ->and($meetingA->fresh())->toBeNull()
+        ->and($meetingB->fresh())->toBeNull();
+});

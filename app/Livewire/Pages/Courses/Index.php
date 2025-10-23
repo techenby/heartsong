@@ -42,4 +42,14 @@ class Index extends Component
     {
         return $this->courses->flatMap->meetings;
     }
+
+    public function delete($id): void
+    {
+        $course = $this->courses->firstWhere('id', $id);
+
+        $course->meetings()->delete();
+        $course->delete();
+
+        unset($this->courses);
+    }
 }
