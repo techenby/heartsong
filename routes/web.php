@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Pages\Courses\Create as CourseCreate;
+use App\Livewire\Pages\Courses\Edit as CourseEdit;
 use App\Livewire\Pages\Courses\Index as Courses;
 use App\Livewire\Pages\Courses\Show as CourseShow;
 use App\Livewire\Settings\Appearance;
@@ -37,4 +38,5 @@ Route::middleware(['auth'])->group(function () {
     Route::get('courses', Courses::class)->name('courses');
     Route::get('courses/create', CourseCreate::class)->name('courses.create');
     Route::get('courses/{course}', CourseShow::class)->name('courses.show');
+    Route::get('courses/{course}/edit', CourseEdit::class)->name('courses.edit');
 });

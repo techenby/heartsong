@@ -23,7 +23,7 @@
 
                         <flux:menu>
                             <flux:menu.item :href="route('courses.show', $course)" icon="eye">View</flux:menu.item>
-                            <flux:menu.item href="#" icon="pencil">Edit</flux:menu.item>
+                            <flux:menu.item :href="route('courses.edit', $course)" icon="pencil">Edit</flux:menu.item>
                             <flux:menu.item href="#" icon="trash">Delete</flux:menu.item>
                         </flux:menu>
                     </flux:dropdown>

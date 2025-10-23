@@ -57,6 +57,6 @@ class Create extends Component
             'period' => Period::{$meeting['period']},
         ], $this->meetings));
 
-        $this->redirectRoute('courses');
+        $this->redirectRoute('courses.show', $course);
     }
 }
