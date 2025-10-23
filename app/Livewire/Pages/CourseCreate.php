@@ -4,6 +4,7 @@ namespace App\Livewire\Pages;
 
 use App\Enum\Color;
 use App\Enum\Day;
+use App\Enum\Grade;
 use App\Enum\Period;
 use App\Models\Course;
 use Flux\Flux;
@@ -46,7 +47,7 @@ class CourseCreate extends Component
     public function save(): void
     {
         $course = Course::create([
-            'grade' => $this->grade,
+            'grade' => Grade::{$this->grade},
             'color' => Color::{$this->color},
             'homeroom' => $this->homeroom,
         ]);

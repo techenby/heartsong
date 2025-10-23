@@ -19,4 +19,14 @@ class CourseFactory extends Factory
             'homeroom' => 'A123',
         ];
     }
+
+    public function color(Color $color): CourseFactory
+    {
+        return $this->state(fn (array $attributes) => ['color' => $color]);
+    }
+
+    public function grade(Grade $grade): CourseFactory
+    {
+        return $this->state(fn (array $attributes) => ['grade' => $grade]);
+    }
 }
