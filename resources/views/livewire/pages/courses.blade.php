@@ -8,8 +8,8 @@
         </flux:button>
     </div>
 
-    <flux:tab.group>
-        <flux:tabs variant="segmented">
+    <flux:tab.group wire:cloak>
+        <flux:tabs wire:model="tab" variant="segmented">
             <flux:tab name="calendar" icon="calendar-days">Calendar</flux:tab>
             <flux:tab name="list" icon="table-cells">Table</flux:tab>
         </flux:tabs>
@@ -34,7 +34,7 @@
                                 @endphp
 
                                 @if ($meeting)
-                                    <flux:table.cell variant="strong" align="center" :key="keyFor($meeting)" class="{{ $meeting->course->color->background() }} {{ $meeting->course->color->text() }} border-l border-gray-100">
+                                    <flux:table.cell variant="strong" align="center" :key="keyFor($meeting)" class="{{ $meeting->course->color->background() }} {{ $meeting->course->color->text() }} border-l border-zinc-100">
                                         {{ $meeting->course->formatted ?? '' }}
                                     </flux:table.cell>
                                 @else
@@ -52,17 +52,31 @@
                     <flux:table.column>Grade</flux:table.column>
                     <flux:table.column>Homeroom</flux:table.column>
                     <flux:table.column>Meets</flux:table.column>
+                    <flux:table.column># Students</flux:table.column>
+                    <flux:table.column><span class="sr-only">Actions</span></flux:table.column>
                 </flux:table.columns>
 
                 <flux:table.rows>
                     @forelse ($this->courses as $course)
                         <flux:table.row :key="keyFor($course)">
                             <flux:table.cell class="flex gap-2 items-center">
-                                <span class="{{ $course->color->background() }} border border-gray-100 rounded-full w-4 h-4"></span>
+                                <x-color-dot :background="$course->color->background()" />
                                 <span>{{ $course->grade }}</span>
                             </flux:table.cell>
                             <flux:table.cell>{{ $course->homeroom }}</flux:table.cell>
                             <flux:table.cell>{{ $course->meets }}</flux:table.cell>
+                            <flux:table.cell>{{ $course->students_count }}</flux:table.cell>
+                            <flux:table.cell>
+                                <flux:dropdown>
+                                    <flux:button variant="ghost" size="sm" icon="ellipsis-horizontal" inset="top bottom"></flux:button>
+
+                                    <flux:menu>
+                                        <flux:menu.item :href="route('courses.show', $course)" icon="eye">View</flux:menu.item>
+                                        <flux:menu.item href="#" icon="pencil">Edit</flux:menu.item>
+                                        <flux:menu.item href="#" icon="trash">Delete</flux:menu.item>
+                                    </flux:menu>
+                                </flux:dropdown>
+                            </flux:table.cell>
                         </flux:table.row>
                     @empty
                         <flux:table.row>

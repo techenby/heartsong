@@ -1,9 +1,9 @@
 <?php
 
-use App\Livewire\Courses;
+use App\Livewire\Pages\CourseCreate;
 use Livewire\Livewire;
 
 it('renders successfully', function () {
-    Livewire::test(Courses::class)
+    Livewire::test(CourseCreate::class)
         ->assertStatus(200);
 });

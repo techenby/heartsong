@@ -13,7 +13,7 @@
             <flux:radio.group wire:model="color" label="Color" variant="pills">
                 @foreach (Color::cases() as $color)
                     <flux:radio :value="$color->name">
-                        <span class="{{ $color->background() }} border border-gray-100 rounded-full size-4"></span>
+                        <x-color-dot :background="$color->background()" />
                         {{ $color->value }}
                     </flux:radio>
                 @endforeach

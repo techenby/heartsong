@@ -1,7 +1,8 @@
 <?php
 
-use App\Livewire\CourseCreate;
-use App\Livewire\Courses;
+use App\Livewire\Pages\CourseCreate;
+use App\Livewire\Pages\Courses;
+use App\Livewire\Pages\CourseShow;
 use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
@@ -35,4 +36,5 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('courses', Courses::class)->name('courses');
     Route::get('courses/create', CourseCreate::class)->name('courses.create');
+    Route::get('courses/{course}', CourseShow::class)->name('courses.show');
 });

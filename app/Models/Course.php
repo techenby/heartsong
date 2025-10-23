@@ -22,6 +22,11 @@ class Course extends Model
         return $this->hasMany(CourseMeeting::class);
     }
 
+    public function students(): HasMany
+    {
+        return $this->hasMany(Student::class);
+    }
+
     /** @return array<string, string> */
     protected function casts(): array
     {
