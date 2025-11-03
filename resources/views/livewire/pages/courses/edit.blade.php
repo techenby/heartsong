@@ -22,7 +22,6 @@
             <flux:input wire:model="homeroom" name="homeroom" label="Homeroom" placeholder="A202"/>
         </div>
 
-
         <div class="space-y-2">
             <flux:heading size="lg" level="2">Times</flux:heading>
 
