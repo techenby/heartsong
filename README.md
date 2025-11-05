@@ -18,6 +18,7 @@ An app to manage a music classroom.
 - Inventory management
 - Gradebook
 - Assessment helpers
+- Seating Charts
 
 ### Assessment:
 
