@@ -7,46 +7,32 @@ use App\Models\Student;
 use Livewire\Livewire;
 
 test('the roster lists students by last name using preferred names', function () {
-    $user = actingAsTenant();
     $course = Course::factory()
         ->has(Student::factory()->state(['first_name' => 'Robert', 'preferred_name' => 'Bobby', 'last_name' => 'Young']))
         ->has(Student::factory()->state(['first_name' => 'Ada', 'last_name' => 'Abbott']))
         ->create();
-    tenancy()->end();
 
-    $this->actingAs($user)
-        ->get(route('courses.show', $course))
+    $this->get(route('courses.show', $course))
         ->assertOk()
         ->assertSeeInOrder(['Ada', 'Abbott', 'Bobby', 'Young'])
         ->assertDontSee('Robert');
 });
 
 test('student names are escaped', function () {
-    $user = actingAsTenant();
     $course = Course::factory()
         ->has(Student::factory()->state(['first_name' => '<script>alert(1)</script>']))
         ->create();
-    tenancy()->end();
 
-    $this->actingAs($user)
-        ->get(route('courses.show', $course))
+    $this->get(route('courses.show', $course))
         ->assertSee('&lt;script&gt;alert(1)&lt;/script&gt;', escape: false)
         ->assertDontSee('<script>alert(1)</script>', escape: false);
 });
 
-test('another user\'s class returns 404', function () {
-    actingAsTenant();
-    $course = Course::factory()->create();
-    $otherUser = actingAsTenant();
-    tenancy()->end();
-
-    $this->actingAs($otherUser)
-        ->get(route('courses.show', $course))
-        ->assertNotFound();
+test('a missing class returns 404', function () {
+    $this->get(route('courses.show', 999))->assertNotFound();
 });
 
 test('a student\'s preferred name and pronouns can be edited', function () {
-    actingAsTenant();
     $student = Student::factory()->create(['first_name' => 'Robert']);
 
     Livewire::test('pages::courses.show', ['course' => $student->course])
@@ -63,7 +49,6 @@ test('a student\'s preferred name and pronouns can be edited', function () {
 });
 
 test('clearing a student\'s details stores nothing', function () {
-    actingAsTenant();
     $student = Student::factory()->create(['preferred_name' => 'Bobby', 'pronouns' => 'he/him']);
 
     Livewire::test('pages::courses.show', ['course' => $student->course])
@@ -78,7 +63,6 @@ test('clearing a student\'s details stores nothing', function () {
 });
 
 test('student details have length limits', function () {
-    actingAsTenant();
     $student = Student::factory()->create();
 
     Livewire::test('pages::courses.show', ['course' => $student->course])
@@ -90,7 +74,6 @@ test('student details have length limits', function () {
 });
 
 test('students from another class cannot be edited', function () {
-    actingAsTenant();
     $course = Course::factory()->create();
     $otherStudent = Student::factory()->create();
 
@@ -100,7 +83,6 @@ test('students from another class cannot be edited', function () {
 });
 
 test('a student can be marked as having left and restored', function () {
-    actingAsTenant();
     $student = Student::factory()->create(['first_name' => 'Robert', 'preferred_name' => 'Bobby', 'last_name' => 'Cruz']);
 
     $component = Livewire::test('pages::courses.show', ['course' => $student->course])
@@ -117,7 +99,6 @@ test('a student can be marked as having left and restored', function () {
 });
 
 test('a student\'s testing history is shown and mistakes can be deleted', function () {
-    actingAsTenant();
     $student = Student::factory()->create();
     $song = Song::factory()->for($student->course)->create(['name' => 'Hot Cross Buns']);
     $attempt = Attempt::factory()->for($student)->for($song)->create(['notes' => 'Wrong student']);

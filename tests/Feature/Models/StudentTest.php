@@ -6,7 +6,6 @@ use App\Models\Song;
 use App\Models\Student;
 
 beforeEach(function () {
-    actingAsTenant();
     $this->course = Course::factory()->create();
     $this->first = Song::factory()->for($this->course)->create(['position' => 0]);
     $this->second = Song::factory()->for($this->course)->create(['position' => 1]);

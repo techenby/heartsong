@@ -7,10 +7,6 @@ use App\Enums\Period;
 use App\Models\Course;
 use Livewire\Livewire;
 
-beforeEach(function () {
-    actingAsTenant();
-});
-
 test('a class is created with its meeting times', function () {
     $component = Livewire::test('pages::courses.create')
         ->set('form.grade', Grade::Third->value)

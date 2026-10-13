@@ -7,7 +7,6 @@ use App\Models\Student;
 use Livewire\Livewire;
 
 beforeEach(function () {
-    actingAsTenant();
     $this->freezeTime();
     $this->course = Course::factory()->create();
     $this->firstSong = Song::factory()->for($this->course)->create(['name' => 'Hot Cross Buns', 'position' => 0]);

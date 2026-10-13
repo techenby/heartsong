@@ -7,7 +7,6 @@ use Illuminate\Validation\ValidationException;
 use Spatie\SimpleExcel\SimpleExcelWriter;
 
 beforeEach(function () {
-    actingAsTenant();
     $this->course = Course::factory()->create();
     $this->importRoster = app(ImportRoster::class);
 });

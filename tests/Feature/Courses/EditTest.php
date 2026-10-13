@@ -9,8 +9,6 @@ use App\Models\CourseMeeting;
 use Livewire\Livewire;
 
 beforeEach(function () {
-    actingAsTenant();
-
     $this->course = Course::factory()->create(['grade' => Grade::Fourth, 'color' => Color::Purple, 'homeroom' => 'C301']);
     $this->course->meetings()->createMany([
         ['day' => Day::Monday, 'period' => Period::First],

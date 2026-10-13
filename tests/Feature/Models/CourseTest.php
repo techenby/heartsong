@@ -7,10 +7,6 @@ use App\Models\Course;
 use App\Models\CourseMeeting;
 use App\Models\Student;
 
-beforeEach(function () {
-    actingAsTenant();
-});
-
 test('meets lists the days when every meeting shares a period', function () {
     $course = Course::factory()->create();
     $course->meetings()->createMany([
@@ -61,12 +57,4 @@ test('deleting a course deletes its meetings and students', function () {
 
     expect(CourseMeeting::count())->toBe(0)
         ->and(Student::count())->toBe(0);
-});
-
-test('courses are only visible inside their owner\'s tenant', function () {
-    Course::factory()->create();
-
-    actingAsTenant();
-
-    expect(Course::count())->toBe(0);
 });

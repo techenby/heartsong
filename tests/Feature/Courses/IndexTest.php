@@ -4,31 +4,26 @@ use App\Enums\Grade;
 use App\Models\Course;
 use Livewire\Livewire;
 
-test('guests are redirected to the login page', function (string $route) {
-    $this->get($route)->assertRedirect(route('login'));
-})->with([
-    'index' => fn () => route('courses.index'),
-    'create' => fn () => route('courses.create'),
-    'show' => fn () => route('courses.show', 1),
-    'edit' => fn () => route('courses.edit', 1),
-    'songs' => fn () => route('courses.songs', 1),
-    'testing' => fn () => route('courses.testing', 1),
-]);
+test('every class page loads', function (string $route) {
+    $course = Course::factory()->create();
+
+    $this->get(route($route, $course))->assertOk();
+})->with(['courses.show', 'courses.edit', 'courses.songs', 'courses.testing']);
+
+test('the classes and create pages load', function (string $route) {
+    $this->get(route($route))->assertOk();
+})->with(['courses.index', 'courses.create']);
 
 test('classes are listed in grade order', function () {
-    $user = actingAsTenant();
     Course::factory()->create(['grade' => Grade::Second, 'homeroom' => 'B201']);
     Course::factory()->create(['grade' => Grade::Kindergarten, 'homeroom' => 'A101']);
-    tenancy()->end();
 
-    $this->actingAs($user)
-        ->get(route('courses.index', ['tab' => 'table']))
+    $this->get(route('courses.index', ['tab' => 'table']))
         ->assertOk()
         ->assertSeeInOrder(['Kindergarten', 'A101', '2nd Grade', 'B201']);
 });
 
 test('a class can be deleted', function () {
-    actingAsTenant();
     $course = Course::factory()->create();
 
     Livewire::test('pages::courses.index')->call('delete', $course->id);
@@ -36,16 +31,8 @@ test('a class can be deleted', function () {
     expect(Course::count())->toBe(0);
 });
 
-test('a class from another user cannot be deleted', function () {
-    $owner = actingAsTenant();
-    $course = Course::factory()->create();
-
-    actingAsTenant();
-
+test('deleting a missing class returns 404', function () {
     Livewire::test('pages::courses.index')
-        ->call('delete', $course->id)
+        ->call('delete', 999)
         ->assertStatus(404);
-
-    tenancy()->initialize($owner->tenant);
-    expect(Course::count())->toBe(1);
 });

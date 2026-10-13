@@ -1,7 +1,5 @@
 <?php
 
-test('returns a successful response', function () {
-    $response = $this->get(route('home'));
-
-    $response->assertOk();
+test('the app opens on the classes page', function () {
+    $this->get(route('home'))->assertRedirect(route('courses.index'));
 });

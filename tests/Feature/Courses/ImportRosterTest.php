@@ -8,7 +8,6 @@ use Livewire\Livewire;
 use Spatie\SimpleExcel\SimpleExcelWriter;
 
 beforeEach(function () {
-    actingAsTenant();
     Storage::fake('local');
     $this->course = Course::factory()->create();
 });

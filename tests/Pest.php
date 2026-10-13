@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -45,15 +44,7 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-/**
- * Switches into the user's tenant for model and Livewire::test() calls. Call tenancy()->end()
- * before HTTP requests, otherwise the request inherits the tenant and hides middleware bugs.
- */
-function actingAsTenant(?User $user = null): User
+function something()
 {
-    $user ??= User::factory()->create();
-
-    tenancy()->initialize($user->provisionTenant());
-
-    return $user;
+    // ..
 }

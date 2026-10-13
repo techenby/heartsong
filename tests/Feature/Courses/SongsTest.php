@@ -6,7 +6,6 @@ use App\Models\Song;
 use Livewire\Livewire;
 
 beforeEach(function () {
-    actingAsTenant();
     $this->course = Course::factory()->create();
 });
 

@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 beforeEach(function () {
-    actingAsTenant();
     $this->course = Course::factory()->create();
 
     foreach (['A', 'B', 'C', 'D'] as $position => $name) {
