@@ -25,6 +25,7 @@ use Illuminate\Support\Carbon;
  * @property-read string $formatted
  * @property-read string $meets
  * @property-read Collection<int, CourseMeeting> $meetings
+ * @property-read Collection<int, Song> $songs
  * @property-read Collection<int, Student> $students
  */
 #[Fillable(['grade', 'color', 'homeroom'])]
@@ -39,6 +40,14 @@ class Course extends Model
     public function meetings(): HasMany
     {
         return $this->hasMany(CourseMeeting::class)->chaperone();
+    }
+
+    /**
+     * @return HasMany<Song, $this>
+     */
+    public function songs(): HasMany
+    {
+        return $this->hasMany(Song::class)->orderBy('position')->orderBy('id');
     }
 
     /**

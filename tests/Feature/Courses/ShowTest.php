@@ -1,6 +1,8 @@
 <?php
 
+use App\Models\Attempt;
 use App\Models\Course;
+use App\Models\Song;
 use App\Models\Student;
 use Livewire\Livewire;
 
@@ -112,4 +114,25 @@ test('a student can be marked as having left and restored', function () {
         ->assertDontSee('Left the class');
 
     expect($student->fresh()->trashed())->toBeFalse();
+});
+
+test('a student\'s testing history is shown and mistakes can be deleted', function () {
+    actingAsTenant();
+    $student = Student::factory()->create();
+    $song = Song::factory()->for($student->course)->create(['name' => 'Hot Cross Buns']);
+    $attempt = Attempt::factory()->for($student)->for($song)->create(['notes' => 'Wrong student']);
+    $otherAttempt = Attempt::factory()->create();
+
+    Livewire::test('pages::courses.show', ['course' => $student->course])
+        ->call('showHistory', $student->id)
+        ->assertSee(['Hot Cross Buns', 'Wrong student'])
+        ->call('deleteAttempt', $otherAttempt->id)
+        ->assertStatus(404);
+
+    Livewire::test('pages::courses.show', ['course' => $student->course])
+        ->call('showHistory', $student->id)
+        ->call('deleteAttempt', $attempt->id)
+        ->assertDontSee('Wrong student');
+
+    expect(Attempt::count())->toBe(1);
 });

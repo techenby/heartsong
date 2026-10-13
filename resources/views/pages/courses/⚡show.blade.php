@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Attempt;
 use App\Models\Course;
 use App\Models\Student;
 use Flux\Flux;
@@ -15,6 +16,9 @@ new #[Title('Class')] class extends Component {
 
     #[Locked]
     public ?int $editingStudentId = null;
+
+    #[Locked]
+    public ?int $historyStudentId = null;
 
     public string $preferredName = '';
 
@@ -42,6 +46,14 @@ new #[Title('Class')] class extends Component {
     public function editingStudent(): ?Student
     {
         return $this->editingStudentId ? $this->course->students()->findOrFail($this->editingStudentId) : null;
+    }
+
+    #[Computed]
+    public function historyStudent(): ?Student
+    {
+        return $this->historyStudentId
+            ? $this->course->students()->withTrashed()->with(['attempts' => fn ($query) => $query->with('song')->latest('attempted_on')->latest('id')])->findOrFail($this->historyStudentId)
+            : null;
     }
 
     #[On('roster-imported')]
@@ -79,6 +91,24 @@ new #[Title('Class')] class extends Component {
         Flux::modal('edit-student')->close();
     }
 
+    public function showHistory(int $studentId): void
+    {
+        $this->historyStudentId = $this->course->students()->withTrashed()->findOrFail($studentId)->id;
+        unset($this->historyStudent);
+
+        Flux::modal('student-history')->show();
+    }
+
+    public function deleteAttempt(int $attemptId): void
+    {
+        Attempt::query()
+            ->whereBelongsTo($this->historyStudent, 'student')
+            ->findOrFail($attemptId)
+            ->delete();
+
+        unset($this->historyStudent);
+    }
+
     public function withdrawStudent(int $studentId): void
     {
         $this->course->students()->findOrFail($studentId)->delete();
@@ -103,9 +133,11 @@ new #[Title('Class')] class extends Component {
             <flux:text size="lg">{{ $course->meets }}</flux:text>
         </div>
 
-        <flux:button :href="route('courses.edit', $course)" icon="pencil" class="ml-auto" wire:navigate>
-            {{ __('Edit') }}
-        </flux:button>
+        <div class="ml-auto flex gap-2">
+            <flux:button :href="route('courses.edit', $course)" icon="pencil" wire:navigate>{{ __('Edit') }}</flux:button>
+            <flux:button :href="route('courses.songs', $course)" icon="musical-note" wire:navigate>{{ __('Songs') }}</flux:button>
+            <flux:button :href="route('courses.testing', $course)" icon="play" variant="primary" wire:navigate>{{ __('Start testing') }}</flux:button>
+        </div>
     </div>
 
     <section class="space-y-4">
@@ -138,6 +170,7 @@ new #[Title('Class')] class extends Component {
                                 <flux:button variant="ghost" size="sm" icon="ellipsis-horizontal" inset="top bottom" :aria-label="__('Actions for :name', ['name' => $student->display_name])" />
 
                                 <flux:menu>
+                                    <flux:menu.item wire:click="showHistory({{ $student->id }})" icon="clock">{{ __('History') }}</flux:menu.item>
                                     <flux:menu.item wire:click="editStudent({{ $student->id }})" icon="pencil">{{ __('Edit details') }}</flux:menu.item>
                                     <flux:menu.item
                                         wire:click="withdrawStudent({{ $student->id }})"
@@ -177,6 +210,51 @@ new #[Title('Class')] class extends Component {
             </flux:table>
         </section>
     @endif
+
+    <flux:modal name="student-history" class="w-full max-w-2xl">
+        @if ($this->historyStudent)
+            <div class="space-y-6">
+                <flux:heading size="lg">{{ __('History for :name', ['name' => $this->historyStudent->display_name]) }}</flux:heading>
+
+                <flux:table>
+                    <flux:table.columns>
+                        <flux:table.column>{{ __('Date') }}</flux:table.column>
+                        <flux:table.column>{{ __('Song') }}</flux:table.column>
+                        <flux:table.column>{{ __('Result') }}</flux:table.column>
+                        <flux:table.column>{{ __('Notes') }}</flux:table.column>
+                        <flux:table.column><span class="sr-only">{{ __('Actions') }}</span></flux:table.column>
+                    </flux:table.columns>
+
+                    <flux:table.rows>
+                        @forelse ($this->historyStudent->attempts as $attempt)
+                            <flux:table.row :key="'attempt-'.$attempt->id">
+                                <flux:table.cell class="whitespace-nowrap">{{ $attempt->attempted_on->toFormattedDateString() }}</flux:table.cell>
+                                <flux:table.cell>{{ $attempt->song->name }}</flux:table.cell>
+                                <flux:table.cell>
+                                    <flux:badge size="sm" :color="$attempt->passed ? 'green' : 'amber'">{{ $attempt->passed ? __('Passed') : __('Not yet') }}</flux:badge>
+                                </flux:table.cell>
+                                <flux:table.cell class="whitespace-normal">{{ $attempt->notes }}</flux:table.cell>
+                                <flux:table.cell align="end">
+                                    <flux:button
+                                        wire:click="deleteAttempt({{ $attempt->id }})"
+                                        wire:confirm="{{ __('Delete this attempt?') }}"
+                                        variant="ghost"
+                                        size="sm"
+                                        icon="trash"
+                                        :aria-label="__('Delete attempt')"
+                                    />
+                                </flux:table.cell>
+                            </flux:table.row>
+                        @empty
+                            <flux:table.row>
+                                <flux:table.cell colspan="5">{{ __('No attempts yet.') }}</flux:table.cell>
+                            </flux:table.row>
+                        @endforelse
+                    </flux:table.rows>
+                </flux:table>
+            </div>
+        @endif
+    </flux:modal>
 
     <flux:modal name="edit-student" class="w-full max-w-md">
         @if ($this->editingStudent)

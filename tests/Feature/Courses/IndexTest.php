@@ -11,6 +11,8 @@ test('guests are redirected to the login page', function (string $route) {
     'create' => fn () => route('courses.create'),
     'show' => fn () => route('courses.show', 1),
     'edit' => fn () => route('courses.edit', 1),
+    'songs' => fn () => route('courses.songs', 1),
+    'testing' => fn () => route('courses.testing', 1),
 ]);
 
 test('classes are listed in grade order', function () {
