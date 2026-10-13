@@ -3,19 +3,19 @@
 namespace App\NativeComponents\Courses;
 
 use App\Actions\ImportRoster;
+use App\Concerns\ConfirmsActions;
+use App\Concerns\HasValidationErrors;
 use App\Models\Attempt;
 use App\Models\Course;
 use App\Models\Student;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as SupportCollection;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Native\Mobile\Attributes\Computed;
 use Native\Mobile\Attributes\On;
 use Native\Mobile\Edge\Element;
 use Native\Mobile\Edge\Layouts\Builders\NavAction;
 use Native\Mobile\Edge\NativeComponent;
-use Native\Mobile\Events\Alert\ButtonPressed;
 use Native\Mobile\Facades\Dialog;
 use Smronju\NativephpDocumentPicker\Events\DocumentPicked;
 use Smronju\NativephpDocumentPicker\Facades\DocumentPicker;
@@ -27,21 +27,18 @@ use Smronju\NativephpDocumentPicker\Facades\DocumentPicker;
  */
 class Show extends NativeComponent
 {
+    use ConfirmsActions, HasValidationErrors;
+
     public Course $course;
 
-    public bool $showDetails = false;
-
+    /** The student whose details are being edited; the details sheet is open while this is set. */
     public ?int $editingStudentId = null;
 
     public string $preferredName = '';
 
     public string $pronouns = '';
 
-    /** @var array<string, array<int, string>> */
-    public array $errors = [];
-
-    public bool $showHistory = false;
-
+    /** The student whose history is showing; the history sheet is open while this is set. */
     public ?int $historyStudentId = null;
 
     public bool $showImport = false;
@@ -61,7 +58,7 @@ class Show extends NativeComponent
 
     public function navTitle(): string
     {
-        return "{$this->course->grade->value} - {$this->course->homeroom}";
+        return $this->course->name;
     }
 
     public function onResume(): void
@@ -73,13 +70,13 @@ class Show extends NativeComponent
     /**
      * @return Collection<int, Student>
      */
-    #[Computed]
+    #[Computed(persist: true)]
     public function students(): Collection
     {
         return $this->course->students()->orderBy('last_name')->orderBy('first_name')->get();
     }
 
-    #[Computed]
+    #[Computed(persist: true)]
     public function historyStudent(): ?Student
     {
         return $this->historyStudentId
@@ -90,7 +87,7 @@ class Show extends NativeComponent
     /**
      * @return SupportCollection<int, Student>
      */
-    #[Computed]
+    #[Computed(persist: true)]
     public function missingStudents(): SupportCollection
     {
         return $this->importNames === []
@@ -119,19 +116,16 @@ class Show extends NativeComponent
         $this->preferredName = $student->preferred_name ?? '';
         $this->pronouns = $student->pronouns ?? '';
         $this->errors = [];
-        $this->showDetails = true;
     }
 
     public function saveStudent(): void
     {
-        $validator = Validator::make(
+        $valid = $this->validateOrRecord(
             ['preferredName' => $this->preferredName, 'pronouns' => $this->pronouns],
             ['preferredName' => ['nullable', 'string', 'max:100'], 'pronouns' => ['nullable', 'string', 'max:50']],
         );
 
-        if ($validator->fails()) {
-            $this->errors = $validator->errors()->toArray();
-
+        if ($valid === null) {
             return;
         }
 
@@ -146,7 +140,6 @@ class Show extends NativeComponent
 
     public function closeDetails(): void
     {
-        $this->showDetails = false;
         $this->editingStudentId = null;
         $this->errors = [];
     }
@@ -154,19 +147,17 @@ class Show extends NativeComponent
     public function openHistory(int $studentId): void
     {
         $this->historyStudentId = $this->course->students()->findOrFail($studentId)->id;
-        $this->showHistory = true;
         unset($this->historyStudent);
     }
 
     public function closeHistory(): void
     {
-        $this->showHistory = false;
         $this->historyStudentId = null;
     }
 
     public function deleteAttempt(int $attemptId): void
     {
-        Attempt::query()->whereBelongsTo($this->historyStudent, 'student')->findOrFail($attemptId)->delete();
+        Attempt::query()->where('student_id', $this->historyStudentId)->findOrFail($attemptId)->delete();
 
         unset($this->historyStudent);
     }
@@ -175,22 +166,10 @@ class Show extends NativeComponent
     {
         $student = $this->course->students()->findOrFail($studentId);
 
-        Dialog::alert("Mark {$student->display_name} as left?", 'They will be permanently deleted along with their testing history. This cannot be undone.', [
-            ['label' => 'Cancel', 'style' => 'cancel'],
-            ['label' => 'Delete', 'style' => 'destructive'],
-        ])->id("withdraw-{$student->id}");
-    }
-
-    #[On(ButtonPressed::class)]
-    public function onAlertButton(int $index, string $label, ?string $id = null): void
-    {
-        if ($label !== 'Delete' || ! str_starts_with((string) $id, 'withdraw-')) {
-            return;
-        }
-
-        $this->course->students()->find((int) str($id)->after('withdraw-')->toString())?->delete();
-
-        unset($this->students);
+        $this->confirm("withdraw-{$student->id}", "Mark {$student->display_name} as left?", 'They will be permanently deleted along with their testing history. This cannot be undone.', function () use ($student): void {
+            $student->delete();
+            unset($this->students);
+        });
     }
 
     public function openImport(): void

@@ -1,19 +1,11 @@
-<native:top-bar title="Testing" :subtitle="$course->grade->value.' - '.$course->homeroom.' · '.today()->toFormattedDayDateString()">
+<native:top-bar title="Testing" :subtitle="$course->name.' · '.today()->toFormattedDayDateString()">
     <native:top-bar-action id="songs" label="Songs" ios-icon="music.note.list" android-icon="queue_music" url="/courses/{{ $course->id }}/songs" />
 </native:top-bar>
 
 @if ($this->songs->isEmpty())
-    <native:column class="w-full h-full items-center justify-center gap-4 p-8 bg-theme-background">
-        <native:icon name="music" ios="music.note" android="music_note" :size="48" class="text-theme-on-surface-variant" />
-        <native:text class="text-lg text-theme-on-surface-variant">Add songs to start testing.</native:text>
-        <native:button label="Add songs" icon="add" @navigate="'/courses/' . $course->id . '/songs'" />
-    </native:column>
+    @include('native.partials.empty-state', ['icon' => 'music', 'ios' => 'music.note', 'android' => 'music_note', 'message' => 'Add songs to start testing.', 'button' => 'Add songs', 'buttonIcon' => 'add', 'navigate' => '/courses/'.$course->id.'/songs'])
 @elseif ($this->students->isEmpty())
-    <native:column class="w-full h-full items-center justify-center gap-4 p-8 bg-theme-background">
-        <native:icon name="people" ios="person.3" android="groups" :size="48" class="text-theme-on-surface-variant" />
-        <native:text class="text-lg text-theme-on-surface-variant">Import a roster to start testing.</native:text>
-        <native:button label="Go to roster" @navigate.back />
-    </native:column>
+    @include('native.partials.empty-state', ['icon' => 'people', 'ios' => 'person.3', 'android' => 'groups', 'message' => 'Import a roster to start testing.', 'button' => 'Go to roster', 'press' => 'back'])
 @else
     <native:column class="w-full h-full md:flex-row gap-4 p-4 bg-theme-background">
         <native:scroll-view class="w-full md:flex-1">
@@ -58,7 +50,7 @@
             <native:text class="text-lg font-semibold text-theme-on-background">Testing order</native:text>
             <native:list fill separator>
                 @foreach ($this->students as $student)
-                    @php($todaysAttempt = $student->testedToday())
+                    @php($todaysAttempt = $this->todaysAttempts->get($student->id))
 
                     <native:list-item
                         native:key="student-{{ $student->id }}"

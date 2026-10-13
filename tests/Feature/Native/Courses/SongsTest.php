@@ -21,7 +21,7 @@ test('songs are added to the end of the list', function () {
         ->assertSet('name', '')
         ->assertSee('Mary Had a Little Lamb');
 
-    expect($this->course->songs()->pluck('name')->all())->toBe(['Hot Cross Buns', 'Mary Had a Little Lamb']);
+    expect(songOrder($this->course))->toBe(['Hot Cross Buns', 'Mary Had a Little Lamb']);
 });
 
 test('a song needs a name', function () {
@@ -39,7 +39,7 @@ test('a song can be renamed', function () {
         ->call('editSong', $song->id)
         ->input('editingName', 'Ode to Joy')
         ->call('renameSong')
-        ->assertSet('showRename', false);
+        ->assertSet('editingSongId', null);
 
     expect($song->fresh()->name)->toBe('Ode to Joy');
 });
@@ -49,13 +49,13 @@ test('songs move up and down the list', function () {
     $second = Song::factory()->for($this->course)->create(['name' => 'Second', 'position' => 1]);
 
     $screen = Native::test(Songs::class, params: ['course' => $this->course])->call('moveSong', $first->id, 1);
-    expect($this->course->songs()->pluck('name')->all())->toBe(['Second', 'First']);
+    expect(songOrder($this->course))->toBe(['Second', 'First']);
 
     $screen->call('moveSong', $first->id, -1);
-    expect($this->course->songs()->pluck('name')->all())->toBe(['First', 'Second']);
+    expect(songOrder($this->course))->toBe(['First', 'Second']);
 
     $screen->call('moveSong', $first->id, -1);
-    expect($this->course->songs()->pluck('name')->all())->toBe(['First', 'Second']);
+    expect(songOrder($this->course))->toBe(['First', 'Second']);
 });
 
 test('deleting a song deletes its attempts after confirming', function () {

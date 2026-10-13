@@ -1,4 +1,4 @@
-<native:top-bar title="Songs" :subtitle="$course->grade->value.' - '.$course->homeroom">
+<native:top-bar title="Songs" :subtitle="$course->name">
     <native:top-bar-action id="testing" label="Start testing" icon="play_arrow" ios-icon="play.fill" url="/courses/{{ $course->id }}/testing" />
 </native:top-bar>
 
@@ -7,20 +7,15 @@
         <native:text class="text-theme-on-surface-variant">Students work through these songs in order.</native:text>
         <native:row class="w-full gap-2 items-center">
             <native:column class="flex-1">
-                <native:outlined-text-input placeholder="Song name, e.g. Hot Cross Buns" native:model="name" @submit="addSong" :is-error="isset($errors['name'])" />
+                <native:outlined-text-input placeholder="Song name, e.g. Hot Cross Buns" native:model="name" @submit="addSong" :is-error="(bool) $this->error('name')" />
             </native:column>
             <native:button label="Add song" icon="add" @press="addSong" />
         </native:row>
-        @isset($errors['name'])
-            <native:text class="text-sm text-theme-destructive">{{ $errors['name'][0] }}</native:text>
-        @endisset
+        @include('native.partials.field-error', ['field' => 'name'])
     </native:column>
 
     @if ($this->songs->isEmpty())
-        <native:column class="w-full flex-1 items-center justify-center gap-3 p-8">
-            <native:icon name="music" ios="music.note" android="music_note" :size="48" class="text-theme-on-surface-variant" />
-            <native:text class="text-lg text-theme-on-surface-variant">No songs yet. Add the first song students will work on.</native:text>
-        </native:column>
+        @include('native.partials.empty-state', ['icon' => 'music', 'ios' => 'music.note', 'android' => 'music_note', 'message' => 'No songs yet. Add the first song students will work on.'])
     @else
         <native:list fill separator>
             @foreach ($this->songs as $index => $song)
@@ -37,13 +32,11 @@
     @endif
 </native:column>
 
-<native:bottom-sheet :visible="$showRename" @dismiss="closeRename" detents="small,medium">
+<native:bottom-sheet :visible="$editingSongId !== null" @dismiss="closeRename" detents="small,medium">
     <native:column class="w-full p-6 gap-4">
         <native:text class="text-xl font-bold text-theme-on-surface">Rename song</native:text>
-        <native:outlined-text-input label="Name" native:model="editingName" @submit="renameSong" :is-error="isset($errors['editingName'])" />
-        @isset($errors['editingName'])
-            <native:text class="text-sm text-theme-destructive">{{ $errors['editingName'][0] }}</native:text>
-        @endisset
+        <native:outlined-text-input label="Name" native:model="editingName" @submit="renameSong" :is-error="(bool) $this->error('editingName')" />
+        @include('native.partials.field-error', ['field' => 'editingName'])
         <native:row class="w-full gap-2 justify-end">
             <native:button label="Cancel" variant="secondary" @press="closeRename" />
             <native:button label="Save" @press="renameSong" />

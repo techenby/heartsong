@@ -25,6 +25,13 @@ class Song extends Model
     /** @use HasFactory<SongFactory> */
     use HasFactory;
 
+    protected static function booted(): void
+    {
+        static::creating(function (Song $song): void {
+            $song->position ??= (static::where('course_id', $song->course_id)->max('position') ?? -1) + 1;
+        });
+    }
+
     /**
      * @return BelongsTo<Course, $this>
      */

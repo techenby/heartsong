@@ -38,7 +38,7 @@ test('running it again replaces the demo data instead of duplicating it', functi
 test('each class gets its grade\'s songs in order', function () {
     $this->seed(DevelopmentSeeder::class);
 
-    Course::all()->each(fn (Course $course) => expect($course->songs()->pluck('name')->all())
+    Course::all()->each(fn (Course $course) => expect(songOrder($course))
         ->toBe(DevelopmentSeeder::songsFor($course->grade))
         ->not->toBeEmpty());
 });

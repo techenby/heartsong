@@ -1,49 +1,14 @@
 <?php
 
+use App\Models\Course;
 use App\Models\Period;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\SimpleExcel\SimpleExcelWriter;
 use Tests\TestCase;
-
-/*
-|--------------------------------------------------------------------------
-| Test Case
-|--------------------------------------------------------------------------
-|
-| The closure you provide to your test functions is always bound to a specific PHPUnit test
-| case class. By default, that class is "PHPUnit\Framework\TestCase". Of course, you may
-| need to change it using the "pest()" function to bind different classes or traits.
-|
-*/
 
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
     ->in('Feature', 'Unit');
-
-/*
-|--------------------------------------------------------------------------
-| Expectations
-|--------------------------------------------------------------------------
-|
-| When you're writing tests, you often need to check that values meet certain conditions. The
-| "expect()" function gives you access to a set of "expectations" methods that you can use
-| to assert different things. Of course, you may extend the Expectation API at any time.
-|
-*/
-
-expect()->extend('toBeOne', function () {
-    return $this->toBe(1);
-});
-
-/*
-|--------------------------------------------------------------------------
-| Functions
-|--------------------------------------------------------------------------
-|
-| While Pest is very powerful out-of-the-box, you may have some testing code specific to your
-| project that you don't want to repeat in every file. Here you can also expose helpers as
-| global functions to help you to reduce the number of lines of code in your test files.
-|
-*/
 
 /**
  * A period from the default bell schedule the migrations seed, e.g. period('1st Period').
@@ -51,4 +16,42 @@ expect()->extend('toBeOne', function () {
 function period(string $name): Period
 {
     return Period::query()->where('name', $name)->firstOrFail();
+}
+
+/**
+ * Write roster file contents to a temporary file, as the document picker hands them over.
+ */
+function rosterFile(string $contents, string $extension = 'csv'): string
+{
+    $path = tempnam(sys_get_temp_dir(), 'roster').'.'.$extension;
+    file_put_contents($path, $contents);
+
+    return $path;
+}
+
+/**
+ * Write an Excel roster to a temporary file.
+ *
+ * @param  array<int, array<string, mixed>>  $rows
+ */
+function excelRoster(array $rows): string
+{
+    $path = tempnam(sys_get_temp_dir(), 'roster').'.xlsx';
+    $writer = SimpleExcelWriter::create($path);
+
+    foreach ($rows as $row) {
+        $writer->addRow($row);
+    }
+
+    $writer->close();
+
+    return $path;
+}
+
+/**
+ * @return array<int, string>
+ */
+function songOrder(Course $course): array
+{
+    return $course->songs()->pluck('name')->all();
 }

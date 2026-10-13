@@ -69,7 +69,7 @@ class Student extends Model
 
     public function testedToday(): ?Attempt
     {
-        return $this->attempts->sortByDesc('id')->first(fn (Attempt $attempt) => $attempt->attempted_on->isToday());
+        return $this->attempts->filter(fn (Attempt $attempt) => $attempt->attempted_on->isToday())->sortByDesc('id')->first();
     }
 
     /**

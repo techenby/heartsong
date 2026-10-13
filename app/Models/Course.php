@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection as SupportCollection;
 
 /**
  * @property int $id
@@ -22,6 +23,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read string $formatted
+ * @property-read string $name
  * @property-read string $meets
  * @property-read Collection<int, CourseMeeting> $meetings
  * @property-read Collection<int, Song> $songs
@@ -77,6 +79,24 @@ class Course extends Model
     }
 
     /**
+     * The full label, e.g. "Kindergarten - A101".
+     *
+     * @return Attribute<non-falsy-string, never>
+     */
+    protected function name(): Attribute
+    {
+        return Attribute::get(fn (): string => "{$this->grade->value} - {$this->homeroom}");
+    }
+
+    /**
+     * @return SupportCollection<int, CourseMeeting>
+     */
+    public function meetingsInWeekOrder(): SupportCollection
+    {
+        return $this->meetings->sortBy(fn (CourseMeeting $meeting) => [$meeting->day->ordinal(), $meeting->period->position])->values();
+    }
+
+    /**
      * Summarize when the course meets, e.g. "1st Period, Monday & Thursday".
      *
      * @return Attribute<string, never>
@@ -84,7 +104,7 @@ class Course extends Model
     protected function meets(): Attribute
     {
         return Attribute::get(function (): string {
-            $days = $this->meetings->pluck('day')->unique()->sortBy(fn (Day $day) => array_search($day, Day::cases()))->values();
+            $days = $this->meetings->pluck('day')->unique()->sortBy(fn (Day $day) => $day->ordinal())->values();
             $periods = $this->meetings->pluck('period')->unique('id')->sortBy('position')->values();
 
             if ($periods->count() === 1 && $days->count() > 1) {
@@ -95,13 +115,7 @@ class Course extends Model
                 return $days->first()->value.', '.$periods->pluck('name')->join(', ', ' & ');
             }
 
-            return $this->meetings
-                ->sortBy([
-                    fn (CourseMeeting $a, CourseMeeting $b) => array_search($a->day, Day::cases()) <=> array_search($b->day, Day::cases()),
-                    fn (CourseMeeting $a, CourseMeeting $b) => $a->period->position <=> $b->period->position,
-                ])
-                ->map->formatted
-                ->join(', ');
+            return $this->meetingsInWeekOrder()->map->formatted->join(', ');
         });
     }
 }

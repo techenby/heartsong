@@ -28,4 +28,18 @@ class MoveToPosition
             $reordered->each(fn (Model $model, int $index) => $model->update([$column => $index]));
         });
     }
+
+    /**
+     * Move one model up (negative offset) or down (positive offset) the list.
+     *
+     * @template TModel of Model
+     *
+     * @param  Collection<int, TModel>  $ordered  Every model in the list, in its current order.
+     */
+    public function by(Collection $ordered, int $id, int $offset, string $column = 'position'): void
+    {
+        $index = $ordered->search(fn (Model $model) => $model->getKey() === $id);
+
+        $this->handle($ordered, $id, $index === false ? 0 : $index + $offset, $column);
+    }
 }

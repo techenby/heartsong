@@ -12,11 +12,7 @@
     </native:row>
 
     @if ($this->students->isEmpty())
-        <native:column class="w-full flex-1 items-center justify-center gap-4 p-8">
-            <native:icon name="people" ios="person.3" android="groups" :size="48" class="text-theme-on-surface-variant" />
-            <native:text class="text-lg text-theme-on-surface-variant">No students yet. Import a roster to get started.</native:text>
-            <native:button label="Import roster" ios-icon="square.and.arrow.down" android-icon="file_upload" @press="openImport" />
-        </native:column>
+        @include('native.partials.empty-state', ['icon' => 'people', 'ios' => 'person.3', 'android' => 'groups', 'message' => 'No students yet. Import a roster to get started.', 'button' => 'Import roster', 'press' => 'openImport'])
     @else
         <native:list fill separator>
             @foreach ($this->students as $student)
@@ -33,7 +29,7 @@
     @endif
 </native:column>
 
-<native:bottom-sheet :visible="$showDetails" @dismiss="closeDetails" detents="medium">
+<native:bottom-sheet :visible="$editingStudentId !== null" @dismiss="closeDetails" detents="medium">
     @if ($editingStudent = $editingStudentId ? $this->students->firstWhere('id', $editingStudentId) : null)
         <native:column class="w-full p-6 gap-4">
             <native:column class="gap-1">
@@ -44,16 +40,12 @@
             </native:column>
 
             <native:outlined-text-input label="Preferred name" supporting="Shown on the roster instead of their first name." native:model="preferredName"
-                :is-error="isset($errors['preferredName'])" />
-            @isset($errors['preferredName'])
-                <native:text class="text-sm text-theme-destructive">{{ $errors['preferredName'][0] }}</native:text>
-            @endisset
+                :is-error="(bool) $this->error('preferredName')" />
+            @include('native.partials.field-error', ['field' => 'preferredName'])
 
             <native:outlined-text-input label="Pronouns" placeholder="she/her, he/him, they/them" native:model="pronouns"
-                :is-error="isset($errors['pronouns'])" />
-            @isset($errors['pronouns'])
-                <native:text class="text-sm text-theme-destructive">{{ $errors['pronouns'][0] }}</native:text>
-            @endisset
+                :is-error="(bool) $this->error('pronouns')" />
+            @include('native.partials.field-error', ['field' => 'pronouns'])
 
             <native:row class="w-full gap-2 justify-end">
                 <native:button label="Cancel" variant="secondary" @press="closeDetails" />
@@ -63,7 +55,7 @@
     @endif
 </native:bottom-sheet>
 
-<native:bottom-sheet :visible="$showHistory" @dismiss="closeHistory" detents="medium,large">
+<native:bottom-sheet :visible="$historyStudentId !== null" @dismiss="closeHistory" detents="medium,large">
     @if ($this->historyStudent)
         <native:column class="w-full h-full">
             <native:text class="text-xl font-bold text-theme-on-surface p-6 pb-2">History for {{ $this->historyStudent->display_name }}</native:text>

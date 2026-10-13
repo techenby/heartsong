@@ -11,22 +11,6 @@ use Smronju\NativephpDocumentPicker\DocumentPickerServiceProvider;
 class NativeServiceProvider extends ServiceProvider
 {
     /**
-     * Register services.
-     */
-    public function register(): void
-    {
-        //
-    }
-
-    /**
-     * Bootstrap services.
-     */
-    public function boot(): void
-    {
-        //
-    }
-
-    /**
      * The NativePHP plugins to enable.
      *
      * Only plugins listed here will be compiled into your native builds.
@@ -42,7 +26,6 @@ class NativeServiceProvider extends ServiceProvider
             BackupExclusionServiceProvider::class,
             DocumentPickerServiceProvider::class,
             NativeUIServiceProvider::class,
-
         ];
     }
 }

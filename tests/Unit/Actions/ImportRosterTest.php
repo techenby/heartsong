@@ -5,20 +5,11 @@ use App\Models\Attempt;
 use App\Models\Course;
 use App\Models\Student;
 use Illuminate\Validation\ValidationException;
-use Spatie\SimpleExcel\SimpleExcelWriter;
 
 beforeEach(function () {
     $this->course = Course::factory()->create();
     $this->importRoster = app(ImportRoster::class);
 });
-
-function rosterFile(string $contents): string
-{
-    $path = tempnam(sys_get_temp_dir(), 'roster');
-    file_put_contents($path, $contents);
-
-    return $path;
-}
 
 function rosterNames(Course $course): array
 {
@@ -34,11 +25,10 @@ test('names are read from the Name column', function () {
 });
 
 test('names are read from an Excel roster', function () {
-    $path = tempnam(sys_get_temp_dir(), 'roster').'.xlsx';
-    SimpleExcelWriter::create($path)
-        ->addRow(['Student ID' => 1, 'Name' => 'Jane, Doe'])
-        ->addRow(['Student ID' => 2, 'Name' => ' John , Smith '])
-        ->close();
+    $path = excelRoster([
+        ['Student ID' => 1, 'Name' => 'Jane, Doe'],
+        ['Student ID' => 2, 'Name' => ' John , Smith '],
+    ]);
 
     expect($this->importRoster->readNames($path, 'xlsx'))->toBe([['Jane', 'Doe'], ['John', 'Smith']]);
 });

@@ -14,11 +14,6 @@ beforeEach(function () {
     }
 });
 
-function songOrder(Course $course): array
-{
-    return $course->songs()->pluck('name')->all();
-}
-
 test('a model moves to its new position and the list is renumbered', function (string $name, int $position, array $expected) {
     $song = $this->course->songs()->firstWhere('name', $name);
 

@@ -6,7 +6,7 @@
             <native:list-item
                 native:key="period-{{ $period->id }}"
                 :headline="$period->name"
-                :supporting="$this->periodTimes($period)"
+                :supporting="$period->formattedTimes(withMeridiem: true)"
                 :trailingText="trans_choice('{0} |{1} 1 class time|[2,*] :count class times', $period->meetings_count)"
                 @press="editPeriod({{ $period->id }})"
                 :trailing-menu="$this->periodMenu($period->id)"
@@ -44,24 +44,19 @@
     <native:column class="w-full p-6 gap-4">
         <native:text class="text-xl font-bold text-theme-on-surface">{{ $editingPeriodId ? 'Edit period' : 'Add period' }}</native:text>
 
-        <native:outlined-text-input label="Name" placeholder="1st Period" native:model="periodName" :is-error="isset($errors['name'])" />
-        @isset($errors['name'])
-            <native:text class="text-sm text-theme-destructive">{{ $errors['name'][0] }}</native:text>
-        @endisset
+        <native:outlined-text-input label="Name" placeholder="1st Period" native:model="periodName" :is-error="(bool) $this->error('name')" />
+        @include('native.partials.field-error', ['field' => 'name'])
 
         <native:row class="w-full gap-4">
             <native:column class="flex-1">
                 <native:date-picker label="Starts" mode="time" native:model="startsAt" />
             </native:column>
             <native:column class="flex-1">
-                <native:date-picker label="Ends" mode="time" native:model="endsAt" :is-error="isset($errors['ends_at'])" />
+                <native:date-picker label="Ends" mode="time" native:model="endsAt" :is-error="(bool) $this->error('ends_at')" />
             </native:column>
         </native:row>
-        @foreach (['starts_at', 'ends_at'] as $field)
-            @isset($errors[$field])
-                <native:text class="text-sm text-theme-destructive">{{ $errors[$field][0] }}</native:text>
-            @endisset
-        @endforeach
+        @include('native.partials.field-error', ['field' => 'starts_at'])
+        @include('native.partials.field-error', ['field' => 'ends_at'])
 
         <native:row class="w-full gap-2 justify-end">
             <native:button label="Cancel" variant="secondary" @press="closePeriod" />

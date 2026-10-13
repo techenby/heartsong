@@ -3,35 +3,32 @@
 namespace App\NativeComponents\Courses;
 
 use App\Actions\MoveToPosition;
+use App\Concerns\ConfirmsActions;
+use App\Concerns\HasValidationErrors;
+use App\Concerns\ReordersRows;
 use App\Models\Course;
 use App\Models\Song;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Validator;
 use Native\Mobile\Attributes\Computed;
-use Native\Mobile\Attributes\On;
 use Native\Mobile\Edge\Element;
 use Native\Mobile\Edge\Layouts\Builders\NavAction;
 use Native\Mobile\Edge\NativeComponent;
-use Native\Mobile\Events\Alert\ButtonPressed;
-use Native\Mobile\Facades\Dialog;
 
 /**
  * @property-read Collection<int, Song> $songs
  */
 class Songs extends NativeComponent
 {
+    use ConfirmsActions, HasValidationErrors, ReordersRows;
+
     public Course $course;
 
     public string $name = '';
 
-    public bool $showRename = false;
-
+    /** The song being renamed; the rename sheet is open while this is set. */
     public ?int $editingSongId = null;
 
     public string $editingName = '';
-
-    /** @var array<string, array<int, string>> */
-    public array $errors = [];
 
     public function mount(Course $course): void
     {
@@ -43,10 +40,15 @@ class Songs extends NativeComponent
         return 'Songs';
     }
 
+    public function onResume(): void
+    {
+        unset($this->songs);
+    }
+
     /**
      * @return Collection<int, Song>
      */
-    #[Computed]
+    #[Computed(persist: true)]
     public function songs(): Collection
     {
         return $this->course->songs()->withCount('attempts')->get();
@@ -59,8 +61,7 @@ class Songs extends NativeComponent
     {
         return [
             NavAction::make("rename-{$songId}")->icon('edit')->label('Rename')->press("editSong({$songId})"),
-            NavAction::make("up-{$songId}")->icon('arrow_upward', ios: 'arrow.up', android: 'arrow_upward')->label('Move up')->press("moveSong({$songId}, -1)"),
-            NavAction::make("down-{$songId}")->icon('arrow_downward', ios: 'arrow.down', android: 'arrow_downward')->label('Move down')->press("moveSong({$songId}, 1)"),
+            ...$this->moveMenuItems('moveSong', $songId),
             NavAction::divider(),
             NavAction::make("delete-{$songId}")->icon('delete')->label('Delete')->press("confirmDelete({$songId})")->destructive(),
         ];
@@ -68,14 +69,11 @@ class Songs extends NativeComponent
 
     public function addSong(): void
     {
-        if (! $this->passes(['name' => $this->name])) {
+        if (! $this->validateOrRecord(['name' => $this->name], $this->nameRules('name'), [], ['name' => 'song name'])) {
             return;
         }
 
-        $this->course->songs()->create([
-            'name' => trim($this->name),
-            'position' => ($this->course->songs()->max('position') ?? -1) + 1,
-        ]);
+        $this->course->songs()->create(['name' => trim($this->name)]);
 
         $this->name = '';
         unset($this->songs);
@@ -88,12 +86,11 @@ class Songs extends NativeComponent
         $this->editingSongId = $song->id;
         $this->editingName = $song->name;
         $this->errors = [];
-        $this->showRename = true;
     }
 
     public function renameSong(): void
     {
-        if (! $this->passes(['editingName' => $this->editingName])) {
+        if (! $this->validateOrRecord(['editingName' => $this->editingName], $this->nameRules('editingName'), [], ['editingName' => 'song name'])) {
             return;
         }
 
@@ -105,17 +102,13 @@ class Songs extends NativeComponent
 
     public function closeRename(): void
     {
-        $this->showRename = false;
         $this->editingSongId = null;
         $this->errors = [];
     }
 
     public function moveSong(int $songId, int $offset): void
     {
-        $songs = $this->course->songs()->get();
-        $index = $songs->search(fn (Song $song) => $song->id === $songId);
-
-        app(MoveToPosition::class)->handle($songs, $songId, max(0, (int) $index + $offset));
+        app(MoveToPosition::class)->by($this->course->songs()->get(), $songId, $offset);
 
         unset($this->songs);
     }
@@ -124,39 +117,22 @@ class Songs extends NativeComponent
     {
         $song = $this->course->songs()->withCount('attempts')->findOrFail($songId);
 
-        Dialog::alert("Delete {$song->name}?", $song->attempts_count
+        $message = $song->attempts_count
             ? trans_choice('Its :count recorded attempt will be deleted too.|Its :count recorded attempts will be deleted too.', $song->attempts_count)
-            : 'This cannot be undone.', [
-                ['label' => 'Cancel', 'style' => 'cancel'],
-                ['label' => 'Delete', 'style' => 'destructive'],
-            ])->id("delete-song-{$song->id}");
-    }
+            : 'This cannot be undone.';
 
-    #[On(ButtonPressed::class)]
-    public function onAlertButton(int $index, string $label, ?string $id = null): void
-    {
-        if ($label !== 'Delete' || ! str_starts_with((string) $id, 'delete-song-')) {
-            return;
-        }
-
-        $this->course->songs()->find((int) str($id)->after('delete-song-')->toString())?->delete();
-
-        unset($this->songs);
+        $this->confirm("delete-song-{$song->id}", "Delete {$song->name}?", $message, function () use ($song): void {
+            $song->delete();
+            unset($this->songs);
+        });
     }
 
     /**
-     * @param  array<string, string>  $data
+     * @return array<string, array<int, string>>
      */
-    protected function passes(array $data): bool
+    protected function nameRules(string $field): array
     {
-        $validator = Validator::make($data, array_fill_keys(array_keys($data), ['required', 'string', 'max:255']), [], [
-            'name' => 'song name',
-            'editingName' => 'song name',
-        ]);
-
-        $this->errors = $validator->errors()->toArray();
-
-        return $validator->passes();
+        return [$field => ['required', 'string', 'max:255']];
     }
 
     public function render(): Element

@@ -21,7 +21,6 @@ class PeriodFactory extends Factory
             'name' => 'Period '.fake()->unique()->numberBetween(100, 999),
             'starts_at' => sprintf('%02d:00', $hour),
             'ends_at' => sprintf('%02d:45', $hour),
-            'position' => 99,
         ];
     }
 }

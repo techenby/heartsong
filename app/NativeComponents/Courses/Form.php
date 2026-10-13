@@ -3,13 +3,11 @@
 namespace App\NativeComponents\Courses;
 
 use App\Actions\SaveCourse;
-use App\Enums\Color;
-use App\Enums\Day;
+use App\Concerns\HasValidationErrors;
 use App\Models\Course;
 use App\Models\CourseMeeting;
 use App\Models\Period;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Validation\ValidationException;
 use Native\Mobile\Attributes\Computed;
 use Native\Mobile\Edge\Element;
 use Native\Mobile\Edge\NativeComponent;
@@ -19,6 +17,8 @@ use Native\Mobile\Edge\NativeComponent;
  */
 class Form extends NativeComponent
 {
+    use HasValidationErrors;
+
     public ?Course $course = null;
 
     public string $grade = '';
@@ -30,9 +30,6 @@ class Form extends NativeComponent
     /** @var array<int, array{day: string, period_id: int|null}> */
     public array $meetings = [['day' => '', 'period_id' => null]];
 
-    /** @var array<string, array<int, string>> Validation messages keyed by field, e.g. "meetings.0.day". */
-    public array $errors = [];
-
     public function mount(?Course $course = null): void
     {
         if (! $course) {
@@ -43,13 +40,8 @@ class Form extends NativeComponent
         $this->grade = $course->grade->value;
         $this->color = $course->color->value;
         $this->homeroom = $course->homeroom;
-        $this->meetings = $course->meetings
-            ->sortBy([
-                fn (CourseMeeting $a, CourseMeeting $b) => array_search($a->day, Day::cases()) <=> array_search($b->day, Day::cases()),
-                fn (CourseMeeting $a, CourseMeeting $b) => $a->period->position <=> $b->period->position,
-            ])
+        $this->meetings = $course->meetingsInWeekOrder()
             ->map(fn (CourseMeeting $meeting) => ['day' => $meeting->day->value, 'period_id' => $meeting->period_id])
-            ->values()
             ->all();
     }
 
@@ -74,11 +66,12 @@ class Form extends NativeComponent
 
     public function setColor(string $color): void
     {
-        $this->color = Color::from($color)->value;
+        $this->color = $color;
     }
 
     /**
-     * Meeting selects can't use native:model: it binds before Blade fills in the row index.
+     * Meeting rows can't use native:model: `meetings.{{ $index }}.day` compiles into a PHP string
+     * literal, so the row index is never interpolated. Periods also need mapping from name to id.
      */
     public function setMeeting(int $index, string $field, string $value): void
     {
@@ -116,20 +109,16 @@ class Form extends NativeComponent
 
     public function save(SaveCourse $saveCourse): void
     {
-        try {
-            $course = $saveCourse->handle($this->course, [
-                'grade' => $this->grade,
-                'color' => $this->color,
-                'homeroom' => $this->homeroom,
-                'meetings' => $this->meetings,
-            ]);
-        } catch (ValidationException $exception) {
-            $this->errors = $exception->errors();
+        $course = $this->recordingErrors(fn () => $saveCourse->handle($this->course, [
+            'grade' => $this->grade,
+            'color' => $this->color,
+            'homeroom' => $this->homeroom,
+            'meetings' => $this->meetings,
+        ]));
 
+        if (! $course) {
             return;
         }
-
-        $this->errors = [];
 
         if ($this->course) {
             $this->back();
@@ -138,11 +127,6 @@ class Form extends NativeComponent
         }
 
         $this->replace('/courses/'.$course->id);
-    }
-
-    public function error(string $field): ?string
-    {
-        return $this->errors[$field][0] ?? null;
     }
 
     public function render(): Element

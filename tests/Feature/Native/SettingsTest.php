@@ -23,7 +23,7 @@ test('ending the school year deletes students and attempts only after confirming
     $screen->emitNative(ButtonPressed::class, ['index' => 0, 'label' => 'Cancel', 'id' => 'end-school-year']);
     expect(Attempt::count())->toBe(1);
 
-    $screen->emitNative(ButtonPressed::class, ['index' => 1, 'label' => 'Delete everything', 'id' => 'end-school-year'])
+    $screen->tap('End school year')->emitNative(ButtonPressed::class, ['index' => 1, 'label' => 'Delete everything', 'id' => 'end-school-year'])
         ->assertNativeCalled('Dialog.Toast');
 
     expect(Attempt::count())->toBe(0)

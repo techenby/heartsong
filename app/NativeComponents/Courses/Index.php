@@ -2,26 +2,24 @@
 
 namespace App\NativeComponents\Courses;
 
-use App\Enums\Grade;
+use App\Concerns\ConfirmsActions;
+use App\Enums\Day;
 use App\Models\Course;
 use App\Models\CourseMeeting;
 use App\Models\Period;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Collection as SupportCollection;
 use Native\Mobile\Attributes\Computed;
-use Native\Mobile\Attributes\On;
 use Native\Mobile\Edge\Element;
 use Native\Mobile\Edge\NativeComponent;
-use Native\Mobile\Events\Alert\ButtonPressed;
-use Native\Mobile\Facades\Dialog;
 
 /**
  * @property-read Collection<int, Course> $courses
- * @property-read SupportCollection<string, CourseMeeting> $slots
  * @property-read Collection<int, Period> $periods
  */
 class Index extends NativeComponent
 {
+    use ConfirmsActions;
+
     /** 0 = calendar, 1 = list */
     public int $tab = 0;
 
@@ -33,71 +31,45 @@ class Index extends NativeComponent
     /**
      * @return Collection<int, Course>
      */
-    #[Computed]
+    #[Computed(persist: true)]
     public function courses(): Collection
     {
         return Course::query()
             ->with('meetings')
             ->withCount('students')
             ->get()
-            ->sortBy([
-                fn (Course $a, Course $b) => array_search($a->grade, Grade::cases()) <=> array_search($b->grade, Grade::cases()),
-                fn (Course $a, Course $b) => $a->homeroom <=> $b->homeroom,
-            ])
+            ->sortBy(fn (Course $course) => [$course->grade->ordinal(), $course->homeroom])
             ->values();
     }
 
     /**
      * @return Collection<int, Period>
      */
-    #[Computed]
+    #[Computed(persist: true)]
     public function periods(): Collection
     {
         return Period::query()->ordered()->get();
     }
 
-    /**
-     * Meetings keyed by "Day|period id" for the calendar grid.
-     *
-     * @return SupportCollection<string, CourseMeeting>
-     */
-    #[Computed]
-    public function slots(): SupportCollection
+    public function meetingAt(Day $day, Period $period): ?CourseMeeting
     {
         return $this->courses->flatMap->meetings
-            ->keyBy(fn (CourseMeeting $meeting) => $meeting->day->value.'|'.$meeting->period_id);
+            ->first(fn (CourseMeeting $meeting) => $meeting->day === $day && $meeting->period_id === $period->id);
     }
 
     public function onResume(): void
     {
-        unset($this->courses, $this->slots, $this->periods);
-    }
-
-    public function open(int $courseId): void
-    {
-        $this->navigate('/courses/'.$courseId);
+        unset($this->courses, $this->periods);
     }
 
     public function confirmDelete(int $courseId): void
     {
         $course = Course::findOrFail($courseId);
 
-        Dialog::alert("Delete {$course->formatted}?", 'Its schedule, songs, roster, and testing history will be deleted too.', [
-            ['label' => 'Cancel', 'style' => 'cancel'],
-            ['label' => 'Delete', 'style' => 'destructive'],
-        ])->id("delete-course-{$course->id}");
-    }
-
-    #[On(ButtonPressed::class)]
-    public function onAlertButton(int $index, string $label, ?string $id = null): void
-    {
-        if ($label !== 'Delete' || ! str_starts_with((string) $id, 'delete-course-')) {
-            return;
-        }
-
-        Course::find((int) str($id)->after('delete-course-')->toString())?->delete();
-
-        unset($this->courses, $this->slots);
+        $this->confirm("delete-course-{$course->id}", "Delete {$course->formatted}?", 'Its schedule, songs, roster, and testing history will be deleted too.', function () use ($course): void {
+            $course->delete();
+            unset($this->courses);
+        });
     }
 
     public function render(): Element

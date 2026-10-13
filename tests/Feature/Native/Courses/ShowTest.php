@@ -8,15 +8,6 @@ use App\NativeComponents\Courses\Show;
 use Native\Mobile\Events\Alert\ButtonPressed;
 use Native\Mobile\Testing\Native;
 use Smronju\NativephpDocumentPicker\Events\DocumentPicked;
-use Spatie\SimpleExcel\SimpleExcelWriter;
-
-function pickedRoster(string $contents, string $extension = 'csv'): string
-{
-    $path = tempnam(sys_get_temp_dir(), 'picked').'.'.$extension;
-    file_put_contents($path, $contents);
-
-    return $path;
-}
 
 test('the roster lists students by preferred name without their legal name', function () {
     $course = Course::factory()
@@ -34,11 +25,11 @@ test('a student\'s preferred name and pronouns can be edited', function () {
 
     Native::test(Show::class, params: ['course' => $student->course])
         ->call('editStudent', $student->id)
-        ->assertSet('showDetails', true)
+        ->assertSet('editingStudentId', $student->id)
         ->input('preferredName', ' Bobby ')
         ->input('pronouns', 'he/him')
         ->call('saveStudent')
-        ->assertSet('showDetails', false);
+        ->assertSet('editingStudentId', null);
 
     expect($student->fresh())
         ->preferred_name->toBe('Bobby')
@@ -52,7 +43,7 @@ test('student details have length limits', function () {
         ->call('editStudent', $student->id)
         ->set('preferredName', str_repeat('a', 101))
         ->call('saveStudent')
-        ->assertSet('showDetails', true)
+        ->assertSet('editingStudentId', $student->id)
         ->assertSee('The preferred name field must not be greater than 100 characters.');
 });
 
@@ -92,7 +83,7 @@ test('choosing a roster opens the document picker for CSV and Excel files', func
 
 test('a picked roster with nobody missing is imported and the temporary copy is deleted', function () {
     $course = Course::factory()->create();
-    $path = pickedRoster("Name\n\"Jane, Doe\"\n");
+    $path = rosterFile("Name\n\"Jane, Doe\"\n");
 
     Native::test(Show::class, params: ['course' => $course])
         ->call('openImport')
@@ -111,7 +102,7 @@ test('the teacher confirms which missing students have left', function () {
 
     $screen = Native::test(Show::class, params: ['course' => $course])
         ->call('openImport')
-        ->emitNative(DocumentPicked::class, ['path' => pickedRoster("Name\n\"Jane, Doe\"\n"), 'name' => 'roster.csv'])
+        ->emitNative(DocumentPicked::class, ['path' => rosterFile("Name\n\"Jane, Doe\"\n"), 'name' => 'roster.csv'])
         ->assertSee("2 students aren't in this roster");
 
     expect($course->students()->count())->toBe(2);
@@ -124,8 +115,7 @@ test('the teacher confirms which missing students have left', function () {
 
 test('an Excel roster can be imported', function () {
     $course = Course::factory()->create();
-    $path = tempnam(sys_get_temp_dir(), 'picked').'.xlsx';
-    SimpleExcelWriter::create($path)->addRow(['Name' => 'Jane, Doe'])->close();
+    $path = excelRoster([['Name' => 'Jane, Doe']]);
 
     Native::test(Show::class, params: ['course' => $course])
         ->emitNative(DocumentPicked::class, ['path' => $path, 'name' => 'roster.xlsx']);
@@ -138,7 +128,7 @@ test('problems in the roster are shown and nothing changes', function () {
 
     Native::test(Show::class, params: ['course' => $course])
         ->call('openImport')
-        ->emitNative(DocumentPicked::class, ['path' => pickedRoster("Student\n\"Jane, Doe\"\n"), 'name' => 'roster.csv'])
+        ->emitNative(DocumentPicked::class, ['path' => rosterFile("Student\n\"Jane, Doe\"\n"), 'name' => 'roster.csv'])
         ->assertSee('The roster needs a "Name" column.');
 
     expect($course->students()->count())->toBe(0);

@@ -28,6 +28,13 @@ class Period extends Model
     /** @use HasFactory<PeriodFactory> */
     use HasFactory;
 
+    protected static function booted(): void
+    {
+        static::creating(function (Period $period): void {
+            $period->position ??= (static::max('position') ?? -1) + 1;
+        });
+    }
+
     /**
      * @return HasMany<CourseMeeting, $this>
      */
@@ -36,9 +43,15 @@ class Period extends Model
         return $this->hasMany(CourseMeeting::class);
     }
 
-    public function formattedTimes(): string
+    /**
+     * "8:20-9:20" for compact grids, or "8:20 AM – 9:20 AM" with the meridiem.
+     */
+    public function formattedTimes(bool $withMeridiem = false): string
     {
-        return Carbon::parse($this->starts_at)->format('g:i').'-'.Carbon::parse($this->ends_at)->format('g:i');
+        $format = $withMeridiem ? 'g:i A' : 'g:i';
+        $separator = $withMeridiem ? ' – ' : '-';
+
+        return Carbon::parse($this->starts_at)->format($format).$separator.Carbon::parse($this->ends_at)->format($format);
     }
 
     /**

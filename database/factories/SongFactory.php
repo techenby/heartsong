@@ -19,7 +19,6 @@ class SongFactory extends Factory
         return [
             'course_id' => Course::factory(),
             'name' => rtrim(fake()->sentence(3), '.'),
-            'position' => 0,
         ];
     }
 }

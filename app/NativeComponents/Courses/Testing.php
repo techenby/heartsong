@@ -3,10 +3,13 @@
 namespace App\NativeComponents\Courses;
 
 use App\Actions\MoveToPosition;
+use App\Concerns\ReordersRows;
+use App\Models\Attempt;
 use App\Models\Course;
 use App\Models\Song;
 use App\Models\Student;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection as SupportCollection;
 use Native\Mobile\Attributes\Computed;
 use Native\Mobile\Edge\Element;
 use Native\Mobile\Edge\Layouts\Builders\NavAction;
@@ -16,11 +19,14 @@ use Native\Mobile\Facades\Dialog;
 /**
  * @property-read Collection<int, Song> $songs
  * @property-read Collection<int, Student> $students
+ * @property-read SupportCollection<int, Attempt|null> $todaysAttempts
  * @property-read Student|null $student
  * @property-read Song|null $song
  */
 class Testing extends NativeComponent
 {
+    use ReordersRows;
+
     public const string CURRENT_SONG = 'Their current song';
 
     public Course $course;
@@ -28,7 +34,7 @@ class Testing extends NativeComponent
     /** Set when the teacher picks someone out of order; otherwise the next untested student is up. */
     public ?int $selectedStudentId = null;
 
-    /** A song label from songOptions(), or CURRENT_SONG. */
+    /** A label from songOptions(): a numbered song, or CURRENT_SONG. */
     public string $songChoice = self::CURRENT_SONG;
 
     public string $notes = '';
@@ -43,10 +49,15 @@ class Testing extends NativeComponent
         return 'Testing';
     }
 
+    public function onResume(): void
+    {
+        unset($this->songs);
+    }
+
     /**
      * @return Collection<int, Song>
      */
-    #[Computed]
+    #[Computed(persist: true)]
     public function songs(): Collection
     {
         return $this->course->songs()->get();
@@ -58,7 +69,21 @@ class Testing extends NativeComponent
     #[Computed]
     public function students(): Collection
     {
-        return $this->course->students()->inTestingOrder()->with('attempts')->get();
+        return $this->course->students()
+            ->inTestingOrder()
+            ->with(['attempts' => fn ($query) => $query->select(['id', 'student_id', 'song_id', 'passed', 'attempted_on'])])
+            ->get();
+    }
+
+    /**
+     * Each student's latest attempt from today, keyed by student id.
+     *
+     * @return SupportCollection<int, Attempt|null>
+     */
+    #[Computed]
+    public function todaysAttempts(): SupportCollection
+    {
+        return $this->students->mapWithKeys(fn (Student $student) => [$student->id => $student->testedToday()]);
     }
 
     #[Computed]
@@ -66,27 +91,28 @@ class Testing extends NativeComponent
     {
         return $this->selectedStudentId
             ? $this->students->firstWhere('id', $this->selectedStudentId)
-            : $this->students->first(fn (Student $student) => ! $student->testedToday());
+            : $this->students->first(fn (Student $student) => ! $this->todaysAttempts->get($student->id));
     }
 
     #[Computed]
     public function song(): ?Song
     {
-        if ($this->songChoice !== self::CURRENT_SONG) {
-            return $this->songs->get(array_search($this->songChoice, $this->songOptions(), true) - 1);
-        }
+        $songId = array_search($this->songChoice, $this->songOptions(), true);
 
-        return $this->student?->currentSong($this->songs);
+        return $songId ? $this->songs->find($songId) : $this->student?->currentSong($this->songs);
     }
 
     /**
-     * Select labels are numbered so two songs with the same name stay distinguishable.
+     * Select labels keyed by song id (0 = current song). Labels are numbered so two songs
+     * with the same name stay distinguishable.
      *
      * @return array<int, string>
      */
     public function songOptions(): array
     {
-        return [self::CURRENT_SONG, ...$this->songs->values()->map(fn (Song $song, int $index) => ($index + 1).'. '.$song->name)->all()];
+        return [0 => self::CURRENT_SONG] + $this->songs->values()
+            ->mapWithKeys(fn (Song $song, int $index) => [$song->id => ($index + 1).'. '.$song->name])
+            ->all();
     }
 
     /**
@@ -94,18 +120,12 @@ class Testing extends NativeComponent
      */
     public function studentMenu(int $studentId): array
     {
-        return [
-            NavAction::make("up-{$studentId}")->icon('arrow_upward', ios: 'arrow.up', android: 'arrow_upward')->label('Move up')->press("moveStudent({$studentId}, -1)"),
-            NavAction::make("down-{$studentId}")->icon('arrow_downward', ios: 'arrow.down', android: 'arrow_downward')->label('Move down')->press("moveStudent({$studentId}, 1)"),
-        ];
+        return $this->moveMenuItems('moveStudent', $studentId);
     }
 
     public function selectStudent(int $studentId): void
     {
-        $this->selectedStudentId = $this->course->students()->findOrFail($studentId)->id;
-        $this->songChoice = self::CURRENT_SONG;
-        $this->notes = '';
-        unset($this->student, $this->song);
+        $this->resetTurn($this->course->students()->findOrFail($studentId)->id);
     }
 
     public function updatedSongChoice(): void
@@ -131,20 +151,24 @@ class Testing extends NativeComponent
 
         Dialog::toast("{$student->display_name}: ".($passed ? 'passed' : 'not yet')." on {$song->name}");
 
-        $this->selectedStudentId = null;
-        $this->songChoice = self::CURRENT_SONG;
-        $this->notes = '';
-        unset($this->students, $this->student, $this->song);
+        unset($this->students);
+        $this->resetTurn();
     }
 
     public function moveStudent(int $studentId, int $offset): void
     {
-        $students = $this->course->students()->inTestingOrder()->get();
-        $index = $students->search(fn (Student $student) => $student->id === $studentId);
+        app(MoveToPosition::class)->by($this->course->students()->inTestingOrder()->get(), $studentId, $offset, 'testing_position');
 
-        app(MoveToPosition::class)->handle($students, $studentId, max(0, (int) $index + $offset), 'testing_position');
+        unset($this->students);
+        $this->resetTurn($this->selectedStudentId);
+    }
 
-        unset($this->students, $this->student, $this->song);
+    protected function resetTurn(?int $studentId = null): void
+    {
+        $this->selectedStudentId = $studentId;
+        $this->songChoice = self::CURRENT_SONG;
+        $this->notes = '';
+        unset($this->todaysAttempts, $this->student, $this->song);
     }
 
     public function render(): Element

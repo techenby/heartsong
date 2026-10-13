@@ -2,8 +2,12 @@
 
 namespace App\Enums;
 
+use App\Enums\Concerns\HasOrdinal;
+
 enum Grade: string
 {
+    use HasOrdinal;
+
     case Kindergarten = 'Kindergarten';
     case First = '1st Grade';
     case Second = '2nd Grade';
