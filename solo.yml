@@ -2,24 +2,17 @@
 name: heartsong
 icon: null
 processes:
+  'Watch iPad Sim':
+    command: php artisan native:run ios CD2D84C3-AC78-4D15-92A7-BEEB43F9F8B7 --watch
+    working_dir: /Users/techenby/Sites/Personal/heartsong
+    auto_start: false
+    auto_restart: false
+    restart_when_changed: []
+    env: {}
   Pail:
     command: php artisan pail
     working_dir: /Users/techenby/Sites/Personal/heartsong
     auto_start: false
     auto_restart: false
-    restart_when_changed: []
-    env: {}
-  npm:dev:
-    command: npm run dev
-    working_dir: /Users/techenby/Sites/Personal/heartsong
-    auto_start: true
-    auto_restart: false
-    restart_when_changed: []
-    env: {}
-  Queue:
-    command: php artisan queue:listen
-    working_dir: /Users/techenby/Sites/Personal/heartsong
-    auto_start: false
-    auto_restart: true
     restart_when_changed: []
     env: {}

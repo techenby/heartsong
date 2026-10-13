@@ -5,6 +5,8 @@ namespace App\Providers;
 use Heartsong\BackupExclusion\BackupExclusionServiceProvider;
 use Illuminate\Support\ServiceProvider;
 use Native\Mobile\Providers\BiometricsServiceProvider;
+use Native\Mobile\UI\NativeUIServiceProvider;
+use Smronju\NativephpDocumentPicker\DocumentPickerServiceProvider;
 
 class NativeServiceProvider extends ServiceProvider
 {
@@ -38,6 +40,8 @@ class NativeServiceProvider extends ServiceProvider
         return [
             BiometricsServiceProvider::class,
             BackupExclusionServiceProvider::class,
+            DocumentPickerServiceProvider::class,
+            NativeUIServiceProvider::class,
 
         ];
     }

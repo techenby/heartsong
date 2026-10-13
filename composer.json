@@ -1,8 +1,8 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/livewire-starter-kit",
+    "name": "techenby/heartsong",
     "type": "project",
-    "description": "The official Laravel starter kit for Livewire.",
+    "description": "A NativePHP iPad app for running an elementary music classroom.",
     "keywords": [
         "laravel",
         "framework"
@@ -14,12 +14,10 @@
         "laravel/chisel": "^0.1.0",
         "laravel/framework": "^13.17",
         "laravel/tinker": "^3.0",
-        "livewire/blaze": "^1.0",
-        "livewire/flux": "^2.13.1",
-        "livewire/flux-pro": "^2.20",
-        "livewire/livewire": "^4.1",
         "nativephp/mobile": "^4.6",
         "nativephp/mobile-biometrics": "^1.0",
+        "nativephp/mobile-ui": "^0.8.0",
+        "smronju/nativephp-document-picker": "^1.1",
         "spatie/simple-excel": "^3.10"
     },
     "require-dev": {
@@ -52,13 +50,11 @@
             "composer install",
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
             "@php artisan key:generate",
-            "@php artisan migrate --force",
-            "npm install",
-            "npm run build"
+            "@php artisan migrate --force"
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
-            "@php artisan dev"
+            "@php artisan native:run ios --watch"
         ],
         "lint": [
             "pint --parallel"
@@ -129,9 +125,5 @@
         "name": "nativephp-plugins",
         "type": "composer",
         "url": "https://plugins.nativephp.com"
-    },{
-        "name": "flux-pro",
-        "type": "composer",
-        "url": "https://composer.fluxui.dev"
     }]
 }

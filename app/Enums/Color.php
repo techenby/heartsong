@@ -31,6 +31,6 @@ enum Color: string
 
     public function text(): string
     {
-        return $this === self::Black ? 'text-white!' : 'text-black!';
+        return $this === self::Black ? 'text-white' : 'text-black';
     }
 }
