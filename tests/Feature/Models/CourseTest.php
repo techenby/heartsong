@@ -2,7 +2,6 @@
 
 use App\Enums\Day;
 use App\Enums\Grade;
-use App\Enums\Period;
 use App\Models\Course;
 use App\Models\CourseMeeting;
 use App\Models\Student;
@@ -10,8 +9,8 @@ use App\Models\Student;
 test('meets lists the days when every meeting shares a period', function () {
     $course = Course::factory()->create();
     $course->meetings()->createMany([
-        ['day' => Day::Thursday, 'period' => Period::First],
-        ['day' => Day::Monday, 'period' => Period::First],
+        ['day' => Day::Thursday, 'period_id' => period('1st Period')->id],
+        ['day' => Day::Monday, 'period_id' => period('1st Period')->id],
     ]);
 
     expect($course->meets)->toBe('1st Period, Monday & Thursday');
@@ -20,8 +19,8 @@ test('meets lists the days when every meeting shares a period', function () {
 test('meets lists the periods when every meeting shares a day', function () {
     $course = Course::factory()->create();
     $course->meetings()->createMany([
-        ['day' => Day::Friday, 'period' => Period::Third],
-        ['day' => Day::Friday, 'period' => Period::First],
+        ['day' => Day::Friday, 'period_id' => period('3rd Period')->id],
+        ['day' => Day::Friday, 'period_id' => period('1st Period')->id],
     ]);
 
     expect($course->meets)->toBe('Friday, 1st Period & 3rd Period');
@@ -30,8 +29,8 @@ test('meets lists the periods when every meeting shares a day', function () {
 test('meets lists each meeting in weekly order when days and periods vary', function () {
     $course = Course::factory()->create();
     $course->meetings()->createMany([
-        ['day' => Day::Tuesday, 'period' => Period::Second],
-        ['day' => Day::Monday, 'period' => Period::Fifth],
+        ['day' => Day::Tuesday, 'period_id' => period('2nd Period')->id],
+        ['day' => Day::Monday, 'period_id' => period('5th Period')->id],
     ]);
 
     expect($course->meets)->toBe('5th Period Monday, 2nd Period Tuesday');

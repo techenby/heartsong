@@ -104,7 +104,7 @@ class Show extends NativeComponent
     public function studentMenu(int $studentId): array
     {
         return [
-            NavAction::make("history-{$studentId}")->icon('history')->label('History')->press("openHistory({$studentId})"),
+            NavAction::make("history-{$studentId}")->icon('history', ios: 'clock.arrow.circlepath', android: 'history')->label('History')->press("openHistory({$studentId})"),
             NavAction::make("details-{$studentId}")->icon('edit')->label('Edit details')->press("editStudent({$studentId})"),
             NavAction::divider(),
             NavAction::make("withdraw-{$studentId}")->icon('delete')->label('Mark as left')->press("confirmWithdraw({$studentId})")->destructive(),

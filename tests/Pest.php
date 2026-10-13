@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Period;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -44,7 +45,10 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+/**
+ * A period from the default bell schedule the migrations seed, e.g. period('1st Period').
+ */
+function period(string $name): Period
 {
-    // ..
+    return Period::query()->where('name', $name)->firstOrFail();
 }

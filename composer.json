@@ -56,6 +56,9 @@
             "Composer\\Config::disableProcessTimeout",
             "@php artisan native:run ios --watch"
         ],
+        "seed:simulator": [
+            "DB_DATABASE=\"$(xcrun simctl get_app_container booted com.techenby.heartsong data)/Library/Application Support/database/database.sqlite\" php artisan db:seed --class=DevelopmentSeeder --force"
+        ],
         "lint": [
             "pint --parallel"
         ],
@@ -114,16 +117,22 @@
     },
     "minimum-stability": "stable",
     "prefer-stable": true,
-    "repositories": [{
-        "name": "backup-exclusion",
-        "type": "path",
-        "url": "packages/heartsong/backup-exclusion",
-        "options": {
-            "symlink": true
+    "repositories": [
+        {
+            "name": "backup-exclusion",
+            "type": "path",
+            "url": "packages/heartsong/backup-exclusion",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "name": "nativephp-plugins",
+            "type": "composer",
+            "url": "https://plugins.nativephp.com"
         }
-    },{
-        "name": "nativephp-plugins",
-        "type": "composer",
-        "url": "https://plugins.nativephp.com"
-    }]
+    ],
+    "scripts-descriptions": {
+        "seed:simulator": "Replace the booted iOS simulator's Heartsong data with the Care Bears demo classes."
+    }
 }

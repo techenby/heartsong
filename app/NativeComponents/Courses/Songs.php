@@ -59,8 +59,8 @@ class Songs extends NativeComponent
     {
         return [
             NavAction::make("rename-{$songId}")->icon('edit')->label('Rename')->press("editSong({$songId})"),
-            NavAction::make("up-{$songId}")->icon('arrow_upward')->label('Move up')->press("moveSong({$songId}, -1)"),
-            NavAction::make("down-{$songId}")->icon('arrow_downward')->label('Move down')->press("moveSong({$songId}, 1)"),
+            NavAction::make("up-{$songId}")->icon('arrow_upward', ios: 'arrow.up', android: 'arrow_upward')->label('Move up')->press("moveSong({$songId}, -1)"),
+            NavAction::make("down-{$songId}")->icon('arrow_downward', ios: 'arrow.down', android: 'arrow_downward')->label('Move down')->press("moveSong({$songId}, 1)"),
             NavAction::divider(),
             NavAction::make("delete-{$songId}")->icon('delete')->label('Delete')->press("confirmDelete({$songId})")->destructive(),
         ];

@@ -5,7 +5,6 @@ namespace App\Actions;
 use App\Enums\Color;
 use App\Enums\Day;
 use App\Enums\Grade;
-use App\Enums\Period;
 use App\Models\Course;
 use Closure;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +17,7 @@ class SaveCourse
     /**
      * Create or update a course and replace its meeting times.
      *
-     * @param  array{grade: string, color: string, homeroom: string, meetings: array<int, array{day: string, period: string}>}  $data
+     * @param  array{grade: string, color: string, homeroom: string, meetings: array<int, array{day: string, period_id: int|null}>}  $data
      *
      * @throws ValidationException
      */
@@ -49,7 +48,7 @@ class SaveCourse
     }
 
     /**
-     * @param  array<int, array{day: string, period: string}>  $meetings
+     * @param  array<int, array{day: string, period_id: int|null}>  $meetings
      * @return array<string, mixed>
      */
     protected function rules(array $meetings): array
@@ -60,7 +59,7 @@ class SaveCourse
             'homeroom' => ['required', 'string', 'max:50'],
             'meetings' => ['required', 'array', 'min:1'],
             'meetings.*.day' => ['required', Rule::enum(Day::class)],
-            'meetings.*.period' => ['required', Rule::enum(Period::class), $this->uniqueMeetingRule($meetings)],
+            'meetings.*.period_id' => ['required', 'integer', Rule::exists('periods', 'id'), $this->uniqueMeetingRule($meetings)],
         ];
     }
 
@@ -71,12 +70,12 @@ class SaveCourse
     {
         return [
             'meetings.*.day.required' => 'Choose a day.',
-            'meetings.*.period.required' => 'Choose a period.',
+            'meetings.*.period_id.required' => 'Choose a period.',
         ];
     }
 
     /**
-     * @param  array<int, array{day: string, period: string}>  $meetings
+     * @param  array<int, array{day: string, period_id: int|null}>  $meetings
      */
     protected function uniqueMeetingRule(array $meetings): Closure
     {
@@ -85,7 +84,7 @@ class SaveCourse
             $meeting = $meetings[$index];
 
             $firstMatch = collect($meetings)->search(
-                fn (array $other) => $other['day'] === $meeting['day'] && $other['period'] === $meeting['period'],
+                fn (array $other) => $other['day'] === $meeting['day'] && $other['period_id'] === $meeting['period_id'],
             );
 
             if ($firstMatch !== $index) {

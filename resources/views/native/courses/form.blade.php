@@ -1,7 +1,6 @@
 @use('App\Enums\Color')
 @use('App\Enums\Day')
 @use('App\Enums\Grade')
-@use('App\Enums\Period')
 
 <native:top-bar :title="$this->navTitle()">
     <native:top-bar-action id="save" label="Save" icon="check" @tap="save" />
@@ -34,23 +33,23 @@
             @endif
         </native:column>
 
-        <native:column class="w-full gap-3">
+        <native:column class="w-full gap-2">
             <native:text class="text-lg font-semibold text-theme-on-background">Times</native:text>
 
             @foreach ($meetings as $index => $meeting)
-                <native:column class="w-full gap-2 p-4 rounded-xl bg-theme-surface" native:key="meeting-{{ $index }}">
+                <native:column class="w-full gap-1" native:key="meeting-{{ $index }}">
                     <native:row class="w-full gap-3 items-center">
                         <native:column class="flex-1">
-                            <native:select label="Day" placeholder="Day of week" :options="array_map(fn ($day) => $day->value, Day::cases())" native:model="meetings.{{ $index }}.day" />
+                            <native:select placeholder="Day of week" a11y-label="Day of week" :options="array_map(fn ($day) => $day->value, Day::cases())" value="{{ $meeting['day'] }}" @change="setMeeting({{ $index }}, 'day')" />
                         </native:column>
                         <native:column class="flex-1">
-                            <native:select label="Period" placeholder="Period" :options="array_map(fn ($period) => $period->value, Period::cases())" native:model="meetings.{{ $index }}.period" />
+                            <native:select placeholder="Period" a11y-label="Period" :options="$this->periods->pluck('name')->all()" value="{{ $this->periodName($meeting['period_id']) }}" @change="setMeeting({{ $index }}, 'period')" />
                         </native:column>
                         <native:button label="Duplicate" ios-icon="doc.on.doc" android-icon="content_copy" variant="ghost" @press="duplicateMeeting({{ $index }})" />
                         <native:button label="Remove" icon="delete" variant="ghost" :disabled="count($meetings) === 1" @press="removeMeeting({{ $index }})" />
                     </native:row>
 
-                    @foreach (['day', 'period'] as $field)
+                    @foreach (['day', 'period_id'] as $field)
                         @if ($error = $this->error("meetings.{$index}.{$field}"))
                             <native:text class="text-sm text-theme-destructive">{{ $error }}</native:text>
                         @endif

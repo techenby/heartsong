@@ -5,6 +5,7 @@ namespace App\NativeComponents\Courses;
 use App\Enums\Grade;
 use App\Models\Course;
 use App\Models\CourseMeeting;
+use App\Models\Period;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as SupportCollection;
 use Native\Mobile\Attributes\Computed;
@@ -17,6 +18,7 @@ use Native\Mobile\Facades\Dialog;
 /**
  * @property-read Collection<int, Course> $courses
  * @property-read SupportCollection<string, CourseMeeting> $slots
+ * @property-read Collection<int, Period> $periods
  */
 class Index extends NativeComponent
 {
@@ -46,7 +48,16 @@ class Index extends NativeComponent
     }
 
     /**
-     * Meetings keyed by "Day|Period" for the calendar grid.
+     * @return Collection<int, Period>
+     */
+    #[Computed]
+    public function periods(): Collection
+    {
+        return Period::query()->ordered()->get();
+    }
+
+    /**
+     * Meetings keyed by "Day|period id" for the calendar grid.
      *
      * @return SupportCollection<string, CourseMeeting>
      */
@@ -54,12 +65,12 @@ class Index extends NativeComponent
     public function slots(): SupportCollection
     {
         return $this->courses->flatMap->meetings
-            ->keyBy(fn (CourseMeeting $meeting) => $meeting->day->value.'|'.$meeting->period->value);
+            ->keyBy(fn (CourseMeeting $meeting) => $meeting->day->value.'|'.$meeting->period_id);
     }
 
     public function onResume(): void
     {
-        unset($this->courses, $this->slots);
+        unset($this->courses, $this->slots, $this->periods);
     }
 
     public function open(int $courseId): void

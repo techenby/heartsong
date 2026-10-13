@@ -3,7 +3,6 @@
 use App\Enums\Color;
 use App\Enums\Day;
 use App\Enums\Grade;
-use App\Enums\Period;
 use App\Models\Course;
 use App\NativeComponents\Courses\Index;
 use Native\Mobile\Events\Alert\ButtonPressed;
@@ -18,7 +17,7 @@ test('an empty app invites the teacher to create a class', function () {
 
 test('the calendar places each class in its time slot', function () {
     $course = Course::factory()->create(['grade' => Grade::Kindergarten, 'homeroom' => 'A101', 'color' => Color::Yellow]);
-    $course->meetings()->create(['day' => Day::Monday, 'period' => Period::First]);
+    $course->meetings()->create(['day' => Day::Monday, 'period_id' => period('1st Period')->id]);
 
     Native::test(Index::class)
         ->assertSee('8:20-9:20')

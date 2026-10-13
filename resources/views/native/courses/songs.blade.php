@@ -18,18 +18,18 @@
 
     @if ($this->songs->isEmpty())
         <native:column class="w-full flex-1 items-center justify-center gap-3 p-8">
-            <native:icon name="music" :size="48" class="text-theme-on-surface-variant" />
+            <native:icon name="music" ios="music.note" android="music_note" :size="48" class="text-theme-on-surface-variant" />
             <native:text class="text-lg text-theme-on-surface-variant">No songs yet. Add the first song students will work on.</native:text>
         </native:column>
     @else
-        <native:list separator>
+        <native:list fill separator>
             @foreach ($this->songs as $index => $song)
                 <native:list-item
                     native:key="song-{{ $song->id }}"
                     :overline="'Song '.($index + 1)"
                     :headline="$song->name"
                     :supporting="trans_choice('{0} No attempts yet|{1} 1 attempt|[2,*] :count attempts', $song->attempts_count)"
-                    leadingIcon="music"
+                    leadingIconIos="music.note" leadingIconAndroid="music_note"
                     :trailing-menu="$this->songMenu($song->id)"
                 />
             @endforeach

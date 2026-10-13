@@ -1,16 +1,16 @@
 <native:top-bar title="Testing" :subtitle="$course->grade->value.' - '.$course->homeroom.' · '.today()->toFormattedDayDateString()">
-    <native:top-bar-action id="songs" label="Songs" icon="music" url="/courses/{{ $course->id }}/songs" />
+    <native:top-bar-action id="songs" label="Songs" ios-icon="music.note.list" android-icon="queue_music" url="/courses/{{ $course->id }}/songs" />
 </native:top-bar>
 
 @if ($this->songs->isEmpty())
     <native:column class="w-full h-full items-center justify-center gap-4 p-8 bg-theme-background">
-        <native:icon name="music" :size="48" class="text-theme-on-surface-variant" />
+        <native:icon name="music" ios="music.note" android="music_note" :size="48" class="text-theme-on-surface-variant" />
         <native:text class="text-lg text-theme-on-surface-variant">Add songs to start testing.</native:text>
         <native:button label="Add songs" icon="add" @navigate="'/courses/' . $course->id . '/songs'" />
     </native:column>
 @elseif ($this->students->isEmpty())
     <native:column class="w-full h-full items-center justify-center gap-4 p-8 bg-theme-background">
-        <native:icon name="people" :size="48" class="text-theme-on-surface-variant" />
+        <native:icon name="people" ios="person.3" android="groups" :size="48" class="text-theme-on-surface-variant" />
         <native:text class="text-lg text-theme-on-surface-variant">Import a roster to start testing.</native:text>
         <native:button label="Go to roster" @navigate.back />
     </native:column>
@@ -54,9 +54,9 @@
             </native:column>
         </native:scroll-view>
 
-        <native:column class="w-full md:flex-1 gap-2">
+        <native:column class="w-full flex-1 gap-2">
             <native:text class="text-lg font-semibold text-theme-on-background">Testing order</native:text>
-            <native:list separator>
+            <native:list fill separator>
                 @foreach ($this->students as $student)
                     @php($todaysAttempt = $student->testedToday())
 

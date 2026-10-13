@@ -95,8 +95,8 @@ class Testing extends NativeComponent
     public function studentMenu(int $studentId): array
     {
         return [
-            NavAction::make("up-{$studentId}")->icon('arrow_upward')->label('Move up')->press("moveStudent({$studentId}, -1)"),
-            NavAction::make("down-{$studentId}")->icon('arrow_downward')->label('Move down')->press("moveStudent({$studentId}, 1)"),
+            NavAction::make("up-{$studentId}")->icon('arrow_upward', ios: 'arrow.up', android: 'arrow_upward')->label('Move up')->press("moveStudent({$studentId}, -1)"),
+            NavAction::make("down-{$studentId}")->icon('arrow_downward', ios: 'arrow.down', android: 'arrow_downward')->label('Move down')->press("moveStudent({$studentId}, 1)"),
         ];
     }
 

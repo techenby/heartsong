@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Enums\Color;
 use App\Enums\Day;
 use App\Enums\Grade;
-use App\Enums\Period;
 use Database\Factories\CourseFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -39,7 +38,7 @@ class Course extends Model
      */
     public function meetings(): HasMany
     {
-        return $this->hasMany(CourseMeeting::class)->chaperone();
+        return $this->hasMany(CourseMeeting::class)->with('period')->chaperone();
     }
 
     /**
@@ -86,20 +85,20 @@ class Course extends Model
     {
         return Attribute::get(function (): string {
             $days = $this->meetings->pluck('day')->unique()->sortBy(fn (Day $day) => array_search($day, Day::cases()))->values();
-            $periods = $this->meetings->pluck('period')->unique()->sortBy(fn (Period $period) => array_search($period, Period::cases()))->values();
+            $periods = $this->meetings->pluck('period')->unique('id')->sortBy('position')->values();
 
             if ($periods->count() === 1 && $days->count() > 1) {
-                return $periods->first()->value.', '.$days->map->value->join(', ', ' & ');
+                return $periods->first()->name.', '.$days->map->value->join(', ', ' & ');
             }
 
             if ($days->count() === 1 && $periods->count() > 1) {
-                return $days->first()->value.', '.$periods->map->value->join(', ', ' & ');
+                return $days->first()->value.', '.$periods->pluck('name')->join(', ', ' & ');
             }
 
             return $this->meetings
                 ->sortBy([
                     fn (CourseMeeting $a, CourseMeeting $b) => array_search($a->day, Day::cases()) <=> array_search($b->day, Day::cases()),
-                    fn (CourseMeeting $a, CourseMeeting $b) => array_search($a->period, Period::cases()) <=> array_search($b->period, Period::cases()),
+                    fn (CourseMeeting $a, CourseMeeting $b) => $a->period->position <=> $b->period->position,
                 ])
                 ->map->formatted
                 ->join(', ');

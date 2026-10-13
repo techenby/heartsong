@@ -1,6 +1,6 @@
 <native:top-bar :title="$this->navTitle()" :subtitle="$course->meets">
-    <native:top-bar-action id="import" label="Import roster" icon="upload" @tap="openImport" />
-    <native:top-bar-action id="songs" label="Songs" icon="music" url="/courses/{{ $course->id }}/songs" />
+    <native:top-bar-action id="import" label="Import roster" ios-icon="square.and.arrow.down" android-icon="file_upload" @tap="openImport" />
+    <native:top-bar-action id="songs" label="Songs" ios-icon="music.note.list" android-icon="queue_music" url="/courses/{{ $course->id }}/songs" />
     <native:top-bar-action id="edit" label="Edit class" icon="edit" url="/courses/{{ $course->id }}/edit" />
 </native:top-bar>
 
@@ -13,12 +13,12 @@
 
     @if ($this->students->isEmpty())
         <native:column class="w-full flex-1 items-center justify-center gap-4 p-8">
-            <native:icon name="people" :size="48" class="text-theme-on-surface-variant" />
+            <native:icon name="people" ios="person.3" android="groups" :size="48" class="text-theme-on-surface-variant" />
             <native:text class="text-lg text-theme-on-surface-variant">No students yet. Import a roster to get started.</native:text>
-            <native:button label="Import roster" icon="upload" @press="openImport" />
+            <native:button label="Import roster" ios-icon="square.and.arrow.down" android-icon="file_upload" @press="openImport" />
         </native:column>
     @else
-        <native:list separator>
+        <native:list fill separator>
             @foreach ($this->students as $student)
                 <native:list-item
                     native:key="student-{{ $student->id }}"
@@ -71,7 +71,7 @@
             @if ($this->historyStudent->attempts->isEmpty())
                 <native:text class="px-6 text-theme-on-surface-variant">No attempts yet.</native:text>
             @else
-                <native:list separator>
+                <native:list fill separator>
                     @foreach ($this->historyStudent->attempts as $attempt)
                         <native:list-item
                             native:key="attempt-{{ $attempt->id }}"
@@ -91,7 +91,7 @@
 </native:bottom-sheet>
 
 <native:bottom-sheet :visible="$showImport" @dismiss="closeImport" detents="medium,large">
-    <native:column class="w-full p-6 gap-4">
+    <native:column class="w-full h-full p-6 gap-4">
         @if ($importNames === [])
             <native:text class="text-xl font-bold text-theme-on-surface">Import roster</native:text>
             <native:text class="text-theme-on-surface-variant">Choose a CSV or Excel file with a Name column of First, Last. Students already in this class keep their preferred names and pronouns. You'll be asked about anyone missing from the file.</native:text>
@@ -110,7 +110,8 @@
             </native:text>
             <native:text class="text-theme-on-surface-variant">Check anyone who has left the class. They will be permanently deleted along with their testing history. Anyone left unchecked stays in the class.</native:text>
 
-            <native:list separator plain>
+            <native:column class="w-full flex-1">
+            <native:list fill separator plain>
                 @foreach ($this->missingStudents as $student)
                     <native:list-item
                         native:key="missing-{{ $student->id }}"
@@ -120,6 +121,7 @@
                     />
                 @endforeach
             </native:list>
+            </native:column>
 
             <native:row class="w-full gap-2 justify-end">
                 <native:button label="Back" variant="secondary" @press="openImport" />

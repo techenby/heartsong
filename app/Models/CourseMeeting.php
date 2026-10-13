@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Enums\Day;
-use App\Enums\Period;
 use Database\Factories\CourseMeetingFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -16,13 +15,14 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property int $course_id
  * @property Day $day
- * @property Period $period
+ * @property int $period_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read string $formatted
  * @property-read Course $course
+ * @property-read Period $period
  */
-#[Fillable(['day', 'period'])]
+#[Fillable(['day', 'period_id'])]
 class CourseMeeting extends Model
 {
     /** @use HasFactory<CourseMeetingFactory> */
@@ -37,21 +37,28 @@ class CourseMeeting extends Model
     }
 
     /**
+     * @return BelongsTo<Period, $this>
+     */
+    public function period(): BelongsTo
+    {
+        return $this->belongsTo(Period::class);
+    }
+
+    /**
      * @return array<string, string>
      */
     protected function casts(): array
     {
         return [
             'day' => Day::class,
-            'period' => Period::class,
         ];
     }
 
     /**
-     * @return Attribute<string, never>
+     * @return Attribute<non-falsy-string, never>
      */
     protected function formatted(): Attribute
     {
-        return Attribute::get(fn (): string => "{$this->period->value} {$this->day->value}");
+        return Attribute::get(fn (): string => "{$this->period->name} {$this->day->value}");
     }
 }

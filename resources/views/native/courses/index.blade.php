@@ -1,5 +1,4 @@
 @use('App\Enums\Day')
-@use('App\Enums\Period')
 
 <native:top-bar title="Classes">
     <native:top-bar-action id="settings" label="Settings" icon="settings" url="/settings" />
@@ -9,7 +8,7 @@
 <native:column class="w-full h-full bg-theme-background">
     @if ($this->courses->isEmpty())
         <native:column class="w-full h-full items-center justify-center gap-4 p-8">
-            <native:icon name="music" :size="48" class="text-theme-on-surface-variant" />
+            <native:icon name="music" ios="music.note" android="music_note" :size="48" class="text-theme-on-surface-variant" />
             <native:text class="text-lg text-theme-on-surface-variant">No classes yet.</native:text>
             <native:button label="Create class" icon="add" @navigate='/courses/create' />
         </native:column>
@@ -31,20 +30,21 @@
                         @endforeach
                     </native:row>
 
-                    @foreach (Period::cases() as $period)
-                        <native:row class="w-full gap-1" native:key="period-{{ $period->name }}">
+                    @foreach ($this->periods as $period)
+                        <native:row class="w-full gap-1" native:key="period-{{ $period->id }}">
                             <native:column class="w-[110] h-[64] items-center justify-center">
-                                <native:text class="text-sm text-theme-on-surface-variant">{{ $period->formattedTimes() }}</native:text>
+                                <native:text class="text-sm font-semibold text-theme-on-surface">{{ $period->name }}</native:text>
+                                <native:text class="text-xs text-theme-on-surface-variant">{{ $period->formattedTimes() }}</native:text>
                             </native:column>
 
                             @foreach (Day::cases() as $day)
-                                @php($meeting = $this->slots->get($day->value.'|'.$period->value))
+                                @php($meeting = $this->slots->get($day->value.'|'.$period->id))
 
                                 @if ($meeting)
                                     <native:pressable
                                         @navigate="'/courses/' . $meeting->course_id"
                                         class="flex-1 h-[64] items-center justify-center rounded-lg {{ $meeting->course->color->background() }}"
-                                        a11y-label="{{ $meeting->course->grade->value }} {{ $meeting->course->homeroom }}, {{ $day->value }} {{ $period->value }}"
+                                        a11y-label="{{ $meeting->course->grade->value }} {{ $meeting->course->homeroom }}, {{ $day->value }} {{ $period->name }}"
                                     >
                                         <native:text class="text-sm font-semibold {{ $meeting->course->color->text() }}">{{ $meeting->course->formatted }}</native:text>
                                     </native:pressable>
@@ -57,14 +57,14 @@
                 </native:column>
             </native:scroll-view>
         @else
-            <native:list separator>
+            <native:list fill separator>
                 @foreach ($this->courses as $course)
                     <native:list-item
                         native:key="course-{{ $course->id }}"
                         :headline="$course->grade->value.' - '.$course->homeroom"
                         :supporting="$course->meets"
                         :trailingText="trans_choice('{1} 1 student|[0,*] :count students', $course->students_count)"
-                        leadingIcon="music"
+                        leadingIconIos="music.note" leadingIconAndroid="music_note"
                         @press="open({{ $course->id }})"
                         :trailing-actions="[
                             ['method' => 'confirmDelete('.$course->id.')', 'label' => 'Delete', 'ios' => 'trash', 'android' => 'delete', 'role' => 'destructive'],
