@@ -41,3 +41,5 @@ yarn-error.log
 /opencode.jsonc
 .DS_Store
 /.playwright-mcp
+/public/ios-hot
+/public/android-hot
