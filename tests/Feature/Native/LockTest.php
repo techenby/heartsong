@@ -21,8 +21,8 @@ test('a failed unlock stays locked and can be retried', function () {
     Native::test(Lock::class)
         ->emitNative(Completed::class, ['success' => false, 'id' => 'unlock'])
         ->assertNoNavigation()
-        ->assertSee("Couldn't unlock. Try again.")
+        ->assertSee("Couldn't unlock. Make sure Touch ID is set up in the iPad's Settings, then try again.")
         ->tap('Unlock')
-        ->assertDontSee("Couldn't unlock. Try again.")
+        ->assertDontSee("Couldn't unlock.")
         ->assertNativeCalledTimes('Biometric.Prompt', 2);
 });

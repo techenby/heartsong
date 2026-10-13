@@ -7,7 +7,7 @@
     </native:column>
 
     @if ($failed)
-        <native:text class="text-sm text-theme-destructive text-center">Couldn't unlock. Try again.</native:text>
+        <native:text class="text-sm text-theme-destructive text-center">Couldn't unlock. Make sure Touch ID is set up in the iPad's Settings, then try again.</native:text>
     @endif
 
     <native:button label="Unlock" icon="lock" @press="unlock" />
