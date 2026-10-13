@@ -60,7 +60,7 @@ new class extends Component {
         $this->dispatch('roster-imported');
 
         Flux::modal('import-roster')->close();
-        Flux::toast(variant: 'success', heading: __('Roster imported'), text: __(':added added, :returned returned, :withdrawn marked as left.', $result));
+        Flux::toast(variant: 'success', heading: __('Roster imported'), text: __(':added added, :withdrawn deleted.', $result));
     }
 
     public function removeRoster(): void
@@ -108,7 +108,7 @@ new class extends Component {
         <form wire:submit="confirm" class="space-y-6">
             <div>
                 <flux:heading size="lg">{{ trans_choice('{1} 1 student isn\'t in this roster|[2,*] :count students aren\'t in this roster', $this->missingStudents->count()) }}</flux:heading>
-                <flux:text class="mt-2">{{ __('Check anyone who has left the class. They will be removed from the roster, and restored if they appear in a later import. Anyone left unchecked stays in the class.') }}</flux:text>
+                <flux:text class="mt-2">{{ __('Check anyone who has left the class. They will be permanently deleted along with their testing history. Anyone left unchecked stays in the class.') }}</flux:text>
             </div>
 
             <flux:checkbox.group wire:model="withdraw" :label="__('Left the class')">

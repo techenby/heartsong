@@ -48,8 +48,8 @@ test('the teacher is asked about missing students before anything changes', func
         ->call('confirm')
         ->assertDispatched('roster-imported');
 
-    expect($left->fresh()->trashed())->toBeTrue()
-        ->and($stays->fresh()->trashed())->toBeFalse()
+    expect($left->fresh())->toBeNull()
+        ->and($stays->fresh())->not->toBeNull()
         ->and($this->course->students()->pluck('first_name')->sort()->values()->all())->toBe(['Jane', 'Still']);
 });
 

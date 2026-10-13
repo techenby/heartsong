@@ -1,0 +1,23 @@
+{
+    "namespace": "BackupExclusion",
+    "bridge_functions": [
+        {
+            "name": "BackupExclusion.Apply",
+            "ios": "BackupExclusionFunctions.Apply",
+            "description": "Exclude the app's Application Support directory (database, storage, logs) from backups"
+        },
+        {
+            "name": "BackupExclusion.Status",
+            "ios": "BackupExclusionFunctions.Status",
+            "description": "Report whether the Application Support directory is excluded from backups"
+        }
+    ],
+    "ios": {
+        "info_plist": {},
+        "dependencies": {
+            "swift_packages": [],
+            "pods": []
+        }
+    },
+    "events": []
+}

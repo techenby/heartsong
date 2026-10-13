@@ -82,20 +82,15 @@ test('students from another class cannot be edited', function () {
         ->assertStatus(404);
 });
 
-test('a student can be marked as having left and restored', function () {
-    $student = Student::factory()->create(['first_name' => 'Robert', 'preferred_name' => 'Bobby', 'last_name' => 'Cruz']);
+test('marking a student as left permanently deletes them and their history', function () {
+    $student = Student::factory()->create();
+    Attempt::factory()->for($student)->for(Song::factory()->for($student->course))->create();
 
-    $component = Livewire::test('pages::courses.show', ['course' => $student->course])
-        ->call('withdrawStudent', $student->id)
-        ->assertSee(['Left the class', 'Bobby Cruz'])
-        ->assertDontSee('Robert');
+    Livewire::test('pages::courses.show', ['course' => $student->course])
+        ->call('withdrawStudent', $student->id);
 
-    expect($student->fresh()->trashed())->toBeTrue();
-
-    $component->call('restoreStudent', $student->id)
-        ->assertDontSee('Left the class');
-
-    expect($student->fresh()->trashed())->toBeFalse();
+    expect($student->fresh())->toBeNull()
+        ->and(Attempt::count())->toBe(0);
 });
 
 test('a student\'s testing history is shown and mistakes can be deleted', function () {

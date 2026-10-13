@@ -1,0 +1,25 @@
+{
+    "name": "heartsong/backup-exclusion",
+    "description": "Keeps a NativePHP app's data out of iCloud and device backups.",
+    "type": "nativephp-plugin",
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "nativephp/mobile": "^4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Heartsong\\BackupExclusion\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Heartsong\\BackupExclusion\\BackupExclusionServiceProvider"
+            ]
+        },
+        "nativephp": {
+            "manifest": "nativephp.json"
+        }
+    }
+}

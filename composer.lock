@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e4a987b38dcf499d5424c888c52e685e",
+    "content-hash": "3e4c6ed06c45f71192c035f94f28d88f",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -1281,6 +1281,43 @@
                 }
             ],
             "time": "2026-08-24T17:13:02+00:00"
+        },
+        {
+            "name": "heartsong/backup-exclusion",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/heartsong/backup-exclusion",
+                "reference": "b7372feab97210987ed390fa4de65c82f27d7100"
+            },
+            "require": {
+                "nativephp/mobile": "^4.0",
+                "php": "^8.2"
+            },
+            "type": "nativephp-plugin",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Heartsong\\BackupExclusion\\BackupExclusionServiceProvider"
+                    ]
+                },
+                "nativephp": {
+                    "manifest": "nativephp.json"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Heartsong\\BackupExclusion\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Keeps a NativePHP app's data out of iCloud and device backups.",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
         },
         {
             "name": "laravel/chisel",
@@ -2786,6 +2823,61 @@
                 "source": "https://github.com/NativePHP/mobile-air/tree/4.6.0"
             },
             "time": "2026-10-02T23:19:44+00:00"
+        },
+        {
+            "name": "nativephp/mobile-biometrics",
+            "version": "1.0.3",
+            "dist": {
+                "type": "zip",
+                "url": "https://plugins.nativephp.com/dist/nativephp/mobile-biometrics/nativephp-mobile-biometrics-8e9f70fcad3dac5688ec25ec6b89d227af7fc0d1-zip-bfea50.zip",
+                "reference": "8e9f70fcad3dac5688ec25ec6b89d227af7fc0d1",
+                "shasum": "a8ae6f97e9a28204b9ed5c065ee81d35025615c9"
+            },
+            "require": {
+                "nativephp/mobile": "^3.0 || ^4.0",
+                "php": "^8.2"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^10.0",
+                "pestphp/pest": "^2.7|^3.0|^4.0"
+            },
+            "type": "nativephp-plugin",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Native\\Mobile\\Providers\\BiometricsServiceProvider"
+                    ]
+                },
+                "nativephp": {
+                    "manifest": "nativephp.json"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Native\\Mobile\\Providers\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
+            },
+            "license": [
+                "proprietary"
+            ],
+            "authors": [
+                {
+                    "name": "NativePHP",
+                    "email": "info@nativephp.com"
+                }
+            ],
+            "description": "Biometric authentication plugin for NativePHP Mobile (Face ID, Touch ID, Fingerprint)",
+            "time": "2026-07-15T18:46:26+00:00"
         },
         {
             "name": "nesbot/carbon",
@@ -11577,7 +11669,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "heartsong/backup-exclusion": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

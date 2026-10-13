@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
 /**
@@ -24,7 +23,6 @@ use Illuminate\Support\Carbon;
  * @property string|null $pronouns
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property Carbon|null $deleted_at
  * @property int|null $testing_position
  * @property-read string $display_name
  * @property-read Course $course
@@ -34,7 +32,7 @@ use Illuminate\Support\Carbon;
 class Student extends Model
 {
     /** @use HasFactory<StudentFactory> */
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     /**
      * @return BelongsTo<Course, $this>

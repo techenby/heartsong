@@ -1,6 +1,7 @@
 <?php
 
 use App\Actions\ImportRoster;
+use App\Models\Attempt;
 use App\Models\Course;
 use App\Models\Student;
 use Illuminate\Validation\ValidationException;
@@ -58,7 +59,7 @@ test('new students are added and matching students keep their details', function
 
     $result = $this->importRoster->handle($this->course, [['robert', 'young'], ['Ada', 'Abbott']]);
 
-    expect($result)->toBe(['added' => 1, 'returned' => 0, 'withdrawn' => 0])
+    expect($result)->toBe(['added' => 1, 'withdrawn' => 0])
         ->and(rosterNames($this->course))->toBe(['Robert Young', 'Ada Abbott'])
         ->and($kept->fresh())
         ->preferred_name->toBe('Bobby')
@@ -68,7 +69,6 @@ test('new students are added and matching students keep their details', function
 test('missing students are listed without being changed', function () {
     Student::factory()->for($this->course)->create(['first_name' => 'Ada', 'last_name' => 'Abbott']);
     $missing = Student::factory()->for($this->course)->create(['first_name' => 'Gone', 'last_name' => 'Away']);
-    Student::factory()->for($this->course)->trashed()->create(['first_name' => 'Long', 'last_name' => 'Gone']);
 
     expect($this->importRoster->missingStudents($this->course, [['Ada', 'Abbott']])->pluck('id')->all())->toBe([$missing->id]);
 
@@ -77,15 +77,18 @@ test('missing students are listed without being changed', function () {
     expect(rosterNames($this->course))->toBe(['Ada Abbott', 'Gone Away']);
 });
 
-test('missing students confirmed as having left are soft deleted', function () {
+test('missing students confirmed as having left are permanently deleted with their history', function () {
     $left = Student::factory()->for($this->course)->create(['first_name' => 'Gone', 'last_name' => 'Away']);
     $stays = Student::factory()->for($this->course)->create(['first_name' => 'Still', 'last_name' => 'Here']);
+
+    Attempt::factory()->for($left)->create();
 
     $result = $this->importRoster->handle($this->course, [['Ada', 'Abbott']], [$left->id]);
 
     expect($result['withdrawn'])->toBe(1)
-        ->and($left->fresh()->trashed())->toBeTrue()
-        ->and($stays->fresh()->trashed())->toBeFalse();
+        ->and($left->fresh())->toBeNull()
+        ->and(Attempt::count())->toBe(0)
+        ->and($stays->fresh())->not->toBeNull();
 });
 
 test('only missing students can be withdrawn', function () {
@@ -95,31 +98,8 @@ test('only missing students can be withdrawn', function () {
     $result = $this->importRoster->handle($this->course, [['Ada', 'Abbott']], [$onRoster->id, $otherClass->id]);
 
     expect($result['withdrawn'])->toBe(0)
-        ->and($onRoster->fresh()->trashed())->toBeFalse()
-        ->and($otherClass->fresh()->trashed())->toBeFalse();
-});
-
-test('students who left are restored when they return', function () {
-    $returning = Student::factory()->for($this->course)->trashed()->create([
-        'first_name' => 'Back', 'last_name' => 'Again', 'pronouns' => 'they/them',
-    ]);
-
-    $result = $this->importRoster->handle($this->course, [['Back', 'Again']]);
-
-    expect($result)->toBe(['added' => 0, 'returned' => 1, 'withdrawn' => 0])
-        ->and($returning->fresh())
-        ->trashed()->toBeFalse()
-        ->pronouns->toBe('they/them');
-});
-
-test('a current student is matched before a former student with the same name', function () {
-    $current = Student::factory()->for($this->course)->create(['first_name' => 'Sam', 'last_name' => 'Lee']);
-    $former = Student::factory()->for($this->course)->trashed()->create(['first_name' => 'Sam', 'last_name' => 'Lee']);
-
-    $this->importRoster->handle($this->course, [['Sam', 'Lee']]);
-
-    expect($current->fresh()->trashed())->toBeFalse()
-        ->and($former->fresh()->trashed())->toBeTrue();
+        ->and($onRoster->fresh())->not->toBeNull()
+        ->and($otherClass->fresh())->not->toBeNull();
 });
 
 test('students who share a name are each kept on reimport', function () {

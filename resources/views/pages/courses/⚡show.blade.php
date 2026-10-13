@@ -33,15 +33,6 @@ new #[Title('Class')] class extends Component {
         return $this->course->students()->orderBy('last_name')->orderBy('first_name')->get();
     }
 
-    /**
-     * @return Collection<int, Student>
-     */
-    #[Computed]
-    public function formerStudents(): Collection
-    {
-        return $this->course->students()->onlyTrashed()->orderBy('last_name')->orderBy('first_name')->get();
-    }
-
     #[Computed]
     public function editingStudent(): ?Student
     {
@@ -52,14 +43,14 @@ new #[Title('Class')] class extends Component {
     public function historyStudent(): ?Student
     {
         return $this->historyStudentId
-            ? $this->course->students()->withTrashed()->with(['attempts' => fn ($query) => $query->with('song')->latest('attempted_on')->latest('id')])->findOrFail($this->historyStudentId)
+            ? $this->course->students()->with(['attempts' => fn ($query) => $query->with('song')->latest('attempted_on')->latest('id')])->findOrFail($this->historyStudentId)
             : null;
     }
 
     #[On('roster-imported')]
     public function refreshRoster(): void
     {
-        unset($this->students, $this->formerStudents);
+        unset($this->students);
     }
 
     public function editStudent(int $studentId): void
@@ -93,7 +84,7 @@ new #[Title('Class')] class extends Component {
 
     public function showHistory(int $studentId): void
     {
-        $this->historyStudentId = $this->course->students()->withTrashed()->findOrFail($studentId)->id;
+        $this->historyStudentId = $this->course->students()->findOrFail($studentId)->id;
         unset($this->historyStudent);
 
         Flux::modal('student-history')->show();
@@ -113,14 +104,7 @@ new #[Title('Class')] class extends Component {
     {
         $this->course->students()->findOrFail($studentId)->delete();
 
-        unset($this->students, $this->formerStudents);
-    }
-
-    public function restoreStudent(int $studentId): void
-    {
-        $this->course->students()->onlyTrashed()->findOrFail($studentId)->restore();
-
-        unset($this->students, $this->formerStudents);
+        unset($this->students);
     }
 }; ?>
 
@@ -174,7 +158,7 @@ new #[Title('Class')] class extends Component {
                                     <flux:menu.item wire:click="editStudent({{ $student->id }})" icon="pencil">{{ __('Edit details') }}</flux:menu.item>
                                     <flux:menu.item
                                         wire:click="withdrawStudent({{ $student->id }})"
-                                        wire:confirm="{{ __('Mark :name as having left this class?', ['name' => $student->display_name]) }}"
+                                        wire:confirm="{{ __('Permanently delete :name and their testing history? This cannot be undone.', ['name' => $student->display_name]) }}"
                                         icon="user-minus"
                                         variant="danger"
                                     >{{ __('Mark as left') }}</flux:menu.item>
@@ -190,26 +174,6 @@ new #[Title('Class')] class extends Component {
             </flux:table.rows>
         </flux:table>
     </section>
-
-    @if ($this->formerStudents->isNotEmpty())
-        <section class="space-y-4">
-            <flux:heading size="lg" level="2">{{ __('Left the class') }}</flux:heading>
-
-            <flux:table>
-                <flux:table.rows>
-                    @foreach ($this->formerStudents as $student)
-                        <flux:table.row :key="'former-'.$student->id">
-                            <flux:table.cell>{{ $student->display_name }}</flux:table.cell>
-                            <flux:table.cell>{{ __('Left :date', ['date' => $student->deleted_at->toFormattedDateString()]) }}</flux:table.cell>
-                            <flux:table.cell align="end">
-                                <flux:button wire:click="restoreStudent({{ $student->id }})" size="sm" icon="arrow-uturn-left">{{ __('Restore') }}</flux:button>
-                            </flux:table.cell>
-                        </flux:table.row>
-                    @endforeach
-                </flux:table.rows>
-            </flux:table>
-        </section>
-    @endif
 
     <flux:modal name="student-history" class="w-full max-w-2xl">
         @if ($this->historyStudent)

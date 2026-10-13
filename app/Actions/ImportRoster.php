@@ -13,23 +13,21 @@ use Spatie\SimpleExcel\SimpleExcelReader;
  * Syncs a course's students with a roster spreadsheet (CSV or XLSX) whose "Name" column holds "First, Last".
  *
  * Students are matched by name so their preferred names and pronouns survive a reimport.
- * Students missing from the file are only soft deleted when the teacher confirms they left,
- * and soft-deleted students who reappear in a later roster are restored.
+ * Students missing from the file are only deleted when the teacher confirms they left, and
+ * then permanently, along with their testing history: Illinois only treats a teacher's notes
+ * as personal records if they're destroyed once the student leaves.
  */
 class ImportRoster
 {
     /**
      * @param  list<array{0: string, 1: string}>  $names
      * @param  array<int, int|string>  $withdrawIds  Missing students the teacher confirmed have left.
-     * @return array{added: int, returned: int, withdrawn: int}
+     * @return array{added: int, withdrawn: int}
      */
     public function handle(Course $course, array $names, array $withdrawIds = []): array
     {
         return DB::transaction(function () use ($course, $names, $withdrawIds) {
-            ['matched' => $matched, 'new' => $new, 'missing' => $missing] = $this->match($course, $names);
-
-            $returning = $matched->filter(fn (Student $student) => $student->trashed());
-            $returning->each->restore();
+            ['new' => $new, 'missing' => $missing] = $this->match($course, $names);
 
             foreach ($new as [$firstName, $lastName]) {
                 $course->students()->create(['first_name' => $firstName, 'last_name' => $lastName]);
@@ -38,7 +36,7 @@ class ImportRoster
             $withdrawn = $missing->whereIn('id', array_map('intval', $withdrawIds));
             $withdrawn->each->delete();
 
-            return ['added' => count($new), 'returned' => $returning->count(), 'withdrawn' => $withdrawn->count()];
+            return ['added' => count($new), 'withdrawn' => $withdrawn->count()];
         });
     }
 
@@ -102,32 +100,26 @@ class ImportRoster
 
     /**
      * @param  list<array{0: string, 1: string}>  $names
-     * @return array{matched: Collection<int, Student>, new: list<array{0: string, 1: string}>, missing: Collection<int, Student>}
+     * @return array{new: list<array{0: string, 1: string}>, missing: Collection<int, Student>}
      */
     protected function match(Course $course, array $names): array
     {
-        // Active students are matched before soft-deleted ones so a returning student who
-        // shares a name with a current one doesn't take their place.
-        $groups = $course->students()->withTrashed()->get()
-            ->sortBy(fn (Student $student) => $student->trashed())
+        $groups = $course->students()->get()
             ->groupBy(fn (Student $student) => $this->key($student->first_name, $student->last_name));
 
-        $matched = collect();
         $new = [];
 
         foreach ($names as [$firstName, $lastName]) {
             $student = $groups->get($this->key($firstName, $lastName))?->shift();
 
-            if ($student) {
-                $matched->push($student);
-            } else {
+            if (! $student) {
                 $new[] = [$firstName, $lastName];
             }
         }
 
-        $missing = $groups->flatten(1)->reject(fn (Student $student) => $student->trashed())->values();
+        $missing = $groups->flatten(1)->values();
 
-        return ['matched' => $matched, 'new' => $new, 'missing' => $missing];
+        return ['new' => $new, 'missing' => $missing];
     }
 
     protected function key(string $firstName, string $lastName): string
