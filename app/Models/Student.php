@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
 /**
@@ -18,13 +19,14 @@ use Illuminate\Support\Carbon;
  * @property string|null $pronouns
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  * @property-read Course $course
  */
 #[Fillable(['first_name', 'last_name', 'preferred_name', 'pronouns'])]
 class Student extends Model
 {
     /** @use HasFactory<StudentFactory> */
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     /**
      * @return BelongsTo<Course, $this>

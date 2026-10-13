@@ -6,6 +6,7 @@ namespace App\Providers;
 
 use App\Http\Middleware\InitializeTenancyForUser;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 use Stancl\JobPipeline\JobPipeline;
@@ -47,6 +48,11 @@ class TenancyServiceProvider extends ServiceProvider
                 ])->send(function (Events\TenantDeleted $event) {
                     return $event->tenant;
                 })->shouldBeQueued(false), // `false` by default, but you probably want to make this `true` for production.
+
+                // FilesystemTenancyBootstrapper gives each tenant its own storage folder; remove it with their data.
+                fn (Events\TenantDeleted $event) => File::deleteDirectory(
+                    storage_path(config('tenancy.filesystem.suffix_base').$event->tenant->getTenantKey())
+                ),
             ],
 
             // Domain events

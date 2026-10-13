@@ -1,15 +1,29 @@
 <?php
 
 use App\Models\Course;
+use App\Models\Student;
+use Illuminate\Database\Eloquent\Collection;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
 new #[Title('Class')] class extends Component {
     public Course $course;
 
-    public function mount(Course $course): void
+    /**
+     * @return Collection<int, Student>
+     */
+    #[Computed]
+    public function students(): Collection
     {
-        $this->course = $course->load(['meetings', 'students' => fn ($query) => $query->orderBy('last_name')->orderBy('first_name')]);
+        return $this->course->students()->orderBy('last_name')->orderBy('first_name')->get();
+    }
+
+    #[On('roster-imported')]
+    public function refreshRoster(): void
+    {
+        unset($this->students);
     }
 }; ?>
 
@@ -28,7 +42,15 @@ new #[Title('Class')] class extends Component {
     </div>
 
     <section class="space-y-4">
-        <flux:heading size="lg" level="2">{{ __('Roster') }}</flux:heading>
+        <div class="flex items-center justify-between gap-4">
+            <flux:heading size="lg" level="2">{{ __('Roster') }}</flux:heading>
+
+            <flux:modal.trigger name="import-roster">
+                <flux:button size="sm" icon="arrow-up-tray">{{ __('Import roster') }}</flux:button>
+            </flux:modal.trigger>
+        </div>
+
+        <livewire:courses.import-roster :$course />
 
         <flux:table>
             <flux:table.columns>
@@ -38,7 +60,7 @@ new #[Title('Class')] class extends Component {
             </flux:table.columns>
 
             <flux:table.rows>
-                @forelse ($course->students as $student)
+                @forelse ($this->students as $student)
                     <flux:table.row :key="$student->id">
                         <flux:table.cell variant="strong">{{ $student->preferred_name ?? $student->first_name }}</flux:table.cell>
                         <flux:table.cell>{{ $student->last_name }}</flux:table.cell>
@@ -46,7 +68,7 @@ new #[Title('Class')] class extends Component {
                     </flux:table.row>
                 @empty
                     <flux:table.row>
-                        <flux:table.cell colspan="3">{{ __('No students in this class yet.') }}</flux:table.cell>
+                        <flux:table.cell colspan="3">{{ __('No students yet. Import a roster to get started.') }}</flux:table.cell>
                     </flux:table.row>
                 @endforelse
             </flux:table.rows>
