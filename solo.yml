@@ -4,21 +4,21 @@ icon: null
 processes:
   Pail:
     command: php artisan pail
-    working_dir: /Users/techenby/Sites/Personal/heartsong/web
+    working_dir: /Users/techenby/Sites/Personal/heartsong
     auto_start: false
     auto_restart: false
     restart_when_changed: []
     env: {}
   npm:dev:
     command: npm run dev
-    working_dir: /Users/techenby/Sites/Personal/heartsong/web
+    working_dir: /Users/techenby/Sites/Personal/heartsong
     auto_start: true
     auto_restart: false
     restart_when_changed: []
     env: {}
   Queue:
     command: php artisan queue:listen
-    working_dir: /Users/techenby/Sites/Personal/heartsong/web
+    working_dir: /Users/techenby/Sites/Personal/heartsong
     auto_start: false
     auto_restart: true
     restart_when_changed: []
