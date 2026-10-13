@@ -45,6 +45,10 @@ expect()->extend('toBeOne', function () {
 |
 */
 
+/**
+ * Switches into the user's tenant for model and Livewire::test() calls. Call tenancy()->end()
+ * before HTTP requests, otherwise the request inherits the tenant and hides middleware bugs.
+ */
 function actingAsTenant(?User $user = null): User
 {
     $user ??= User::factory()->create();

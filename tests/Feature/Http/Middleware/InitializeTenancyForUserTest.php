@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Course;
 use App\Models\User;
 
 test('a private database is created for the user on their first visit', function () {
@@ -38,4 +39,12 @@ test('queued jobs stay in the central database while tenancy is active', functio
     dispatch(fn () => null);
 
     $this->assertDatabaseCount('jobs', 1, 'sqlite');
+});
+
+test('route model bindings resolve from the user\'s tenant', function () {
+    $user = actingAsTenant();
+    $course = Course::factory()->create();
+    tenancy()->end();
+
+    $this->actingAs($user)->get(route('courses.show', $course))->assertOk();
 });

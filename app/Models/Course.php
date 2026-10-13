@@ -38,7 +38,7 @@ class Course extends Model
      */
     public function meetings(): HasMany
     {
-        return $this->hasMany(CourseMeeting::class);
+        return $this->hasMany(CourseMeeting::class)->chaperone();
     }
 
     /**
