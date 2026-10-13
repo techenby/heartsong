@@ -12,6 +12,9 @@ permissions:
 jobs:
   ci:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
 
     # `composer setup` migrates using the Postgres connection from .env.example.
     services:
