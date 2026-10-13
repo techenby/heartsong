@@ -113,7 +113,7 @@ new class extends Component {
 
             <flux:checkbox.group wire:model="withdraw" :label="__('Left the class')">
                 @foreach ($this->missingStudents as $student)
-                    <flux:checkbox :value="$student->id" :label="($student->preferred_name ?? $student->first_name).' '.$student->last_name" wire:key="withdraw-{{ $student->id }}" />
+                    <flux:checkbox :value="$student->id" :label="$student->display_name" wire:key="withdraw-{{ $student->id }}" />
                 @endforeach
             </flux:checkbox.group>
 

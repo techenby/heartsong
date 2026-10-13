@@ -2,6 +2,7 @@
 
 use App\Models\Course;
 use App\Models\Student;
+use Livewire\Livewire;
 
 test('the roster lists students by last name using preferred names', function () {
     $user = actingAsTenant();
@@ -40,4 +41,75 @@ test('another user\'s class returns 404', function () {
     $this->actingAs($otherUser)
         ->get(route('courses.show', $course))
         ->assertNotFound();
+});
+
+test('a student\'s preferred name and pronouns can be edited', function () {
+    actingAsTenant();
+    $student = Student::factory()->create(['first_name' => 'Robert']);
+
+    Livewire::test('pages::courses.show', ['course' => $student->course])
+        ->call('editStudent', $student->id)
+        ->set('preferredName', ' Bobby ')
+        ->set('pronouns', 'he/him')
+        ->call('saveStudent')
+        ->assertHasNoErrors()
+        ->assertSee('Bobby');
+
+    expect($student->fresh())
+        ->preferred_name->toBe('Bobby')
+        ->pronouns->toBe('he/him');
+});
+
+test('clearing a student\'s details stores nothing', function () {
+    actingAsTenant();
+    $student = Student::factory()->create(['preferred_name' => 'Bobby', 'pronouns' => 'he/him']);
+
+    Livewire::test('pages::courses.show', ['course' => $student->course])
+        ->call('editStudent', $student->id)
+        ->set('preferredName', '  ')
+        ->set('pronouns', '')
+        ->call('saveStudent');
+
+    expect($student->fresh())
+        ->preferred_name->toBeNull()
+        ->pronouns->toBeNull();
+});
+
+test('student details have length limits', function () {
+    actingAsTenant();
+    $student = Student::factory()->create();
+
+    Livewire::test('pages::courses.show', ['course' => $student->course])
+        ->call('editStudent', $student->id)
+        ->set('preferredName', str_repeat('a', 101))
+        ->set('pronouns', str_repeat('a', 51))
+        ->call('saveStudent')
+        ->assertHasErrors(['preferredName' => 'max', 'pronouns' => 'max']);
+});
+
+test('students from another class cannot be edited', function () {
+    actingAsTenant();
+    $course = Course::factory()->create();
+    $otherStudent = Student::factory()->create();
+
+    Livewire::test('pages::courses.show', ['course' => $course])
+        ->call('editStudent', $otherStudent->id)
+        ->assertStatus(404);
+});
+
+test('a student can be marked as having left and restored', function () {
+    actingAsTenant();
+    $student = Student::factory()->create(['first_name' => 'Robert', 'preferred_name' => 'Bobby', 'last_name' => 'Cruz']);
+
+    $component = Livewire::test('pages::courses.show', ['course' => $student->course])
+        ->call('withdrawStudent', $student->id)
+        ->assertSee(['Left the class', 'Bobby Cruz'])
+        ->assertDontSee('Robert');
+
+    expect($student->fresh()->trashed())->toBeTrue();
+
+    $component->call('restoreStudent', $student->id)
+        ->assertDontSee('Left the class');
+
+    expect($student->fresh()->trashed())->toBeFalse();
 });
