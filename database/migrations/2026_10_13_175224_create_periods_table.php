@@ -22,11 +22,11 @@ return new class extends Migration
         $defaults = [
             ['1st Period', '08:20', '09:20'],
             ['2nd Period', '09:20', '10:20'],
-            ['3rd Period', '10:20', '11:20'],
-            ['4th Period', '11:20', '12:10'],
-            ['5th Period', '12:10', '13:10'],
-            ['6th Period', '13:15', '15:15'],
-            ['7th Period', '15:15', '16:15'],
+            ['3rd Period', '10:25', '11:25'],
+            ['4th Period', '11:25', '12:15'],
+            ['5th Period', '12:15', '13:15'],
+            ['6th Period', '13:15', '14:15'],
+            ['7th Period', '14:15', '15:15'],
         ];
 
         DB::table('periods')->insert(array_map(fn (array $period, int $position) => [

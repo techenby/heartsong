@@ -6,12 +6,12 @@ use App\Models\CourseMeeting;
 use App\Models\Student;
 use Database\Seeders\DevelopmentSeeder;
 
-test('one class per grade meets twice without double-booking a time slot', function () {
+test('every class on the schedule meets without double-booking a time slot', function () {
     $this->seed(DevelopmentSeeder::class);
 
-    expect(Course::count())->toBe(count(Grade::cases()))
-        ->and(Course::pluck('grade')->all())->toBe(Grade::cases())
-        ->and(CourseMeeting::count())->toBe(count(Grade::cases()) * 2)
+    expect(Course::count())->toBe(count(DevelopmentSeeder::SCHEDULE))
+        ->and(Course::pluck('grade')->unique()->values()->all())->toBe(Grade::cases())
+        ->and(CourseMeeting::count())->toBe(collect(DevelopmentSeeder::SCHEDULE)->sum(fn (array $class) => count($class['meetings'])))
         ->and(CourseMeeting::query()->distinct()->count(DB::raw("day || '-' || period_id")))->toBe(CourseMeeting::count());
 });
 
@@ -31,7 +31,7 @@ test('running it again replaces the demo data instead of duplicating it', functi
     $this->seed(DevelopmentSeeder::class);
     $this->seed(DevelopmentSeeder::class);
 
-    expect(Course::count())->toBe(count(Grade::cases()))
+    expect(Course::count())->toBe(count(DevelopmentSeeder::SCHEDULE))
         ->and(Student::count())->toBe(count(DevelopmentSeeder::CARE_BEARS) + count(DevelopmentSeeder::VILLAINS));
 });
 

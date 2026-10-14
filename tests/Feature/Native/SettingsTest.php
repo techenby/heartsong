@@ -40,16 +40,16 @@ test('the bell schedule lists periods in order with their times', function () {
 test('a period is added after the last one', function () {
     Native::test(Settings::class)
         ->tap('Add period')
-        ->assertSet('startsAt', '16:15')
-        ->assertSet('endsAt', '17:00')
+        ->assertSet('startsAt', '15:15')
+        ->assertSet('endsAt', '16:00')
         ->input('periodName', 'After school')
         ->call('savePeriod')
         ->assertSet('showPeriod', false);
 
     expect(Period::query()->ordered()->get()->last())
         ->name->toBe('After school')
-        ->starts_at->toBe('16:15')
-        ->ends_at->toBe('17:00');
+        ->starts_at->toBe('15:15')
+        ->ends_at->toBe('16:00');
 });
 
 test('editing a period changes when its classes meet', function () {
