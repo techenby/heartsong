@@ -1,0 +1,18 @@
+{
+    "namespace": "DeviceTimezone",
+    "bridge_functions": [
+        {
+            "name": "DeviceTimezone.Get",
+            "ios": "DeviceTimezoneFunctions.Get",
+            "description": "Return the device's current timezone identifier, e.g. America/Chicago"
+        }
+    ],
+    "ios": {
+        "info_plist": {},
+        "dependencies": {
+            "swift_packages": [],
+            "pods": []
+        }
+    },
+    "events": []
+}

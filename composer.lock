@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "aae82db3a9a62a5987c095e438930955",
+    "content-hash": "0771d5c1916c6f4d37c1b45cc105dc31",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -1314,6 +1314,43 @@
                 "MIT"
             ],
             "description": "Keeps a NativePHP app's data out of iCloud and device backups.",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "heartsong/device-timezone",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/heartsong/device-timezone",
+                "reference": "f88b1fe25392f7e97c17e5f6aaa1bc280551eeb8"
+            },
+            "require": {
+                "nativephp/mobile": "^4.0",
+                "php": "^8.2"
+            },
+            "type": "nativephp-plugin",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Heartsong\\DeviceTimezone\\DeviceTimezoneServiceProvider"
+                    ]
+                },
+                "nativephp": {
+                    "manifest": "nativephp.json"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Heartsong\\DeviceTimezone\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Reads the device's timezone so a NativePHP app can use local dates and times.",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -11326,7 +11363,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "heartsong/backup-exclusion": 20
+        "heartsong/backup-exclusion": 20,
+        "heartsong/device-timezone": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

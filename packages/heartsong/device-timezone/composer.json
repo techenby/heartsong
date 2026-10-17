@@ -1,0 +1,25 @@
+{
+    "name": "heartsong/device-timezone",
+    "description": "Reads the device's timezone so a NativePHP app can use local dates and times.",
+    "type": "nativephp-plugin",
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "nativephp/mobile": "^4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Heartsong\\DeviceTimezone\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Heartsong\\DeviceTimezone\\DeviceTimezoneServiceProvider"
+            ]
+        },
+        "nativephp": {
+            "manifest": "nativephp.json"
+        }
+    }
+}

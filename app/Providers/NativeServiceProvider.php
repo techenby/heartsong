@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Heartsong\BackupExclusion\BackupExclusionServiceProvider;
+use Heartsong\DeviceTimezone\DeviceTimezoneServiceProvider;
 use Illuminate\Support\ServiceProvider;
 use Native\Mobile\Providers\BiometricsServiceProvider;
 use Native\Mobile\UI\NativeUIServiceProvider;
@@ -24,6 +25,7 @@ class NativeServiceProvider extends ServiceProvider
         return [
             BiometricsServiceProvider::class,
             BackupExclusionServiceProvider::class,
+            DeviceTimezoneServiceProvider::class,
             DocumentPickerServiceProvider::class,
             NativeUIServiceProvider::class,
         ];
